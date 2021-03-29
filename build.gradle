@@ -3,6 +3,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
 }
+
 group 'org.idw.core'
 version '1.0-SNAPSHOT'
 sourceCompatibility = '1.8'
@@ -24,8 +25,17 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
     implementation  group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'io.netty', name: 'netty-all', version: '4.1.60.Final'
+    compileOnly("org.springframework.boot:spring-boot-devtools")
+    implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
+
 }
 
 test {
     // useJUnitPlatform()
 }
+// 拷贝配置文件
+//task copyConfigFile() {
+//    delete "$buildDir\\config"
+//    from('src/main/resources')
+//    into 'build/libs/config'
+//}
