@@ -1,0 +1,77 @@
+﻿{
+  "devices": [
+    {
+      "deviceName": "1号桌面",
+      "protocolType": "keyence_upperlink",
+      "host": "127.0.0.1",
+      "port": 8501,
+      "connectTimeout": 3000,
+      "retryInterval": 3000,
+      "tags": [
+        {
+          "tagName": "1号状态型号产量",
+          "key": "L1_D1_output",
+          "registerType": "FM",
+          "registerIndex": 11,
+          "offset":0,
+          "unit": "word",
+          "count": 11,
+          "readInterval": 1000,
+          "readTimes": 10,
+          "loopRead": true,
+          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_1"
+        },
+        {
+          "tagName": "1号不良",
+          "key": "L1_D1_bad",
+          "registerType": "FM",
+          "registerIndex": 11,
+          "offset":0,
+          "unit": "word",
+          "count": 11,
+          "readInterval": 1000,
+          "readTimes": 10,
+          "loopRead": true,
+          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_2"
+        }
+      ]
+    },
+    {
+      "deviceName": "2号桌面",
+      "modelNumber": "KEYENCE_KV-7500",
+      "protocolType": "keyence_upperlink",
+      "host": "127.0.0.1",
+      "port": 8502,
+      "connectTimeout": 3000,
+      "retryInterval": 3000,
+      "tags": [
+        {
+          "tagName": "2号状态型号产量",
+          "key": "L1_D2_output",
+          "registerType": "FM",
+          "registerIndex": 11,
+          "offset":0,
+          "unit": "word",
+          "count": 11,
+          "readInterval": 1000,
+          "readTimes": 10,
+          "loopRead": true,
+          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_1"
+        },
+        {
+          "tagName": "2号不良",
+          "key": "L1_D2_bad",
+          "registerType": "FM",
+          "registerIndex": 11,
+          "offset":0,
+          "unit": "word",
+          "count": 11,
+          "readInterval": 1000,
+          "readTimes": 10,
+          "loopRead": true,
+          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_2"
+        }
+      ]
+    }
+  ]
+}
