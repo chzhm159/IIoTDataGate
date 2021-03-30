@@ -1,6 +1,0 @@
-org/idw/protocol/DataTypeNames.java
- org.idw.protocol.DataTypeNames
-org/idw/protocol/ProtocolNames.java
- org.idw.protocol.ProtocolNames
-org/idw/protocol/AbstractProtocol.java
- org.idw.protocol.AbstractProtocol
