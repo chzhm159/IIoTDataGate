@@ -13,13 +13,13 @@ import java.io.IOException;
 public class TagsDefineFileProcessor {
     private static final Logger log = LoggerFactory.getLogger(TagsDefineFileProcessor.class);
 
-    public TagsDefine  load(String tagsPath){
+    public AcquireTagsDefine load(String tagsPath){
         File tagFile = FileUtils.getFile(tagsPath);
         log.debug("读取 {}, 绝对路径 {}",tagsPath,tagFile.getAbsolutePath());
         try {
-            TagsDefine bean = new ObjectMapper()
+            AcquireTagsDefine bean = new ObjectMapper()
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    .readerFor(TagsDefine.class)
+                    .readerFor(AcquireTagsDefine.class)
                     .readValue(tagFile);
             return  bean;
         } catch (IOException e) {

@@ -1,13 +1,29 @@
 package org.idw.protocol.keyence;
 
 
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.BinaryCodec;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.ArrayUtils;
+
 import org.idw.protocol.AbstractProtocol;
 import org.idw.protocol.DataTypeNames;
 import org.idw.protocol.ProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public class UpperLink extends AbstractProtocol {
     private static final Logger log = LoggerFactory.getLogger(UpperLink.class);
@@ -24,7 +40,7 @@ public class UpperLink extends AbstractProtocol {
         initDataType();
     }
     @Override
-    public Byte[] getReadCommand(HashMap<String, Object> args) {
+    public ArrayList<Byte> getReadCommand(HashMap<String, Object> args) {
         Object registerTypeObj = args.get("registerType");
         Object registerIndexObj = args.get("registerIndex");
         Object unitObj = args.get("unit");
@@ -86,18 +102,100 @@ public class UpperLink extends AbstractProtocol {
         stringBuilder.append(count);
         stringBuilder.append("\r");
         String cmd = stringBuilder.toString();
-        log.debug("read command: {}",cmd);
-        return new Byte[0];
+        log.debug("read command string: {}",cmd);
+        // Hex hex = new Hex(Charset.forName("US-ASCII"));
+        byte[] bytelist = cmd.getBytes(Charset.forName("US-ASCII"));
+        Byte[] cmdBytes = ArrayUtils.toObject(bytelist);
+        ArrayList<Byte> cmdByteList = Stream.of(cmdBytes).collect(Collectors.toCollection(ArrayList<Byte>::new));
+        return cmdByteList;
     }
 
     @Override
-    public Byte[] getWriteCommand(HashMap<String, Object> args) {
-        return new Byte[0];
+    public ArrayList<Byte> getWriteCommand(HashMap<String, Object> args) {
+        Object registerTypeObj = args.get("registerType");
+        Object registerIndexObj = args.get("registerIndex");
+        Object unitObj = args.get("unit");
+        Object countObj = args.get("count");
+        String type = null,unit=null;
+        int index =-1 , count=1;
+        if(registerTypeObj==null){
+            log.error("未指定寄存器区域名称,例如DM/FM,故无法构造读取指令");
+            return null;
+        }
+        if(registerIndexObj==null){
+            log.error("未指定寄存器区域编号,例如 100,故无法构造读取指令");
+            return null;
+        }
+        try{
+            index = Integer.valueOf(registerIndexObj.toString());
+            if(index < 0){
+                log.error("寄存器区域编号必须大于等于0.当前参数为:{}",index);
+                return null;
+            }
+        }catch (Exception e){
+            log.error("指定寄存器区域编号非数字类型 {} Error: {}",registerIndexObj.toString(),e.getMessage());
+            return null;
+        }
+
+        if(countObj==null){
+            log.warn("未指定将要读取多少个数据,默认读取 1 个单位");
+        }else{
+            try{
+                count = Integer.valueOf(countObj.toString());
+                if(count < 0){
+                    log.error("读取数量必须大于0.当前参数为:{}",count);
+                    return null;
+                }
+            }catch (Exception e){
+                log.error("读取数量必须为数字类型 {} Error: {}",countObj.toString(),e.getMessage());
+                return null;
+            }
+        }
+        if(unitObj==null){
+            log.error("未指定将要读取地址的数据类型,例如 .U,故无法构造读取指令");
+            return null;
+        }else{
+
+            if(!dataTypes.containsKey(unitObj.toString())){
+                log.error("不支持的数据类型{}",unitObj.toString());
+                return null;
+            }
+            unit = dataTypes.get(unitObj.toString());
+        }
+
+        type=(String)registerTypeObj;
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("WRS ");
+        stringBuilder.append(type);
+        stringBuilder.append(index);
+        stringBuilder.append(unit);
+        stringBuilder.append(" ");
+        stringBuilder.append(count);
+        stringBuilder.append(" ");
+        for(int i=1;i<=count;i++){
+            String ki = "v_"+i;
+            if(!args.containsKey(ki)){
+                log.error("写入参数数量为:{},但缺少对应的数值: {}",count,ki);
+                return null;
+            }
+            // TODO 这里可以再根据 unit 来对数值做进一步的验证.
+            stringBuilder.append(args.get(ki).toString());
+            stringBuilder.append(" ");
+        }
+        // 删除最后一个空格
+        int lastSpaceChar = stringBuilder.lastIndexOf(" ");
+        if(lastSpaceChar==(stringBuilder.length()-1)){
+            stringBuilder.deleteCharAt(lastSpaceChar);
+        }
+        stringBuilder.append("\r");
+        String cmd = stringBuilder.toString();
+        log.debug("write command string: {}",cmd);
+        byte[] bytelist = cmd.getBytes(Charset.forName("US-ASCII"));
+        Byte[] cmdBytes = ArrayUtils.toObject(bytelist);
+        ArrayList<Byte> cmdByteList = Stream.of(cmdBytes).collect(Collectors.toCollection(ArrayList<Byte>::new));
+        return cmdByteList;
     }
 
-    private static boolean DataMemoryValid(String registerType){
-        return true;
-    }
     public  static void main(String[] args){
         // UpperLink.getReadCommand("FM",100,"UINT16");
         UpperLink up = new UpperLink("kv-5000");
@@ -160,37 +258,5 @@ public class UpperLink extends AbstractProtocol {
         dataTypes.put(DataTypeNames.int32,".L");
         dataTypes.put(DataTypeNames.hex,".H");
     }
-
-//    public static byte[] GetReadCommand(DataAddress address)
-//    {
-//        StringBuilder stringBuilder = new StringBuilder();
-//        stringBuilder.Append("RDS " + address.get_Value());
-//        switch (address.get_Type())
-//        {
-//            case 1:
-//                stringBuilder.Append(string.Format(" {0}", 1));
-//                break;
-//            case 2:
-//                stringBuilder.Append(string.Format(".S {0}", address.get_Offset() + 1));
-//                break;
-//            case 3:
-//                stringBuilder.Append(string.Format(".U {0}", address.get_Offset() + 1));
-//                break;
-//            case 4:
-//                stringBuilder.Append(string.Format(".L {0}", address.get_Offset() + 1));
-//                break;
-//            case 5:
-//                stringBuilder.Append(string.Format(".H {0}", (address.get_Offset() + 1) * 2));
-//                break;
-//            case 6:
-//                stringBuilder.Append(string.Format(".H {0}", (int)Math.Ceiling((double)(address.get_Offset() + 1) / 2.0)));
-//                break;
-//            default:
-//                throw new NotImplementedException();
-//        }
-//        stringBuilder.Append("\r");
-//        return Encoding.ASCII.GetBytes(stringBuilder.ToString());
-//    }
-
 }
 
