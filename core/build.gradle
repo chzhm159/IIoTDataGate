@@ -1,21 +1,21 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'org.idw.core'
 version '1.0-SNAPSHOT'
 archivesBaseName = 'core'
 sourceCompatibility = 1.8
+application{
+    mainClassName('org.idw.core.server.App')
+}
+
 
 repositories {
-    // mavenCentral()
     maven {
         url "http://maven.aliyun.com/nexus/content/groups/public"
     }
-}
-jar{
-    enabled(true)
-
 }
 
 dependencies {
@@ -29,4 +29,20 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+}
+
+task copyConifgs(type :Copy) {
+    printf("copy tags to dist package $projectDir/../config/ to $buildDir/config/")
+    from file("$projectDir/../config/")
+    into file("$buildDir/config/")
+
+}
+distributions {
+    main {
+        contents {
+            from(copyConifgs) {
+                into('config')
+            }
+        }
+    }
 }
