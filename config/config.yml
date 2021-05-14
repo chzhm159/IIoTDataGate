@@ -1,0 +1,5 @@
+app:
+  name: IIoTDataGate
+  ver: 0.0.1
+env:
+  tags: 'config/tags.json'

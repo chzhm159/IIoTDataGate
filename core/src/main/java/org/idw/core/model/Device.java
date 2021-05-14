@@ -3,7 +3,7 @@ package org.idw.core.model;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Device {
-    // 折兵名称
+    // 设备名称
     private String  deviceName;
     // 通讯协议编号
     private String protocolType;

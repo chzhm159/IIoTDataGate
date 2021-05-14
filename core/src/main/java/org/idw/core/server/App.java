@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import org.idw.core.testanddemo.UpperLinkHandler;
 import org.idw.core.utils.AcquireTagsDefine;
+import org.idw.core.utils.AppConfig;
 import org.idw.protocol.DataTypeNames;
 import org.idw.core.utils.TagsDefineFileProcessor;
 import org.slf4j.Logger;
@@ -21,10 +22,12 @@ import java.util.HashMap;
 public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
     public static void main(String[] args) {
-        AcquireTagsDefine atd = start();
-        InitDevicesList(atd);
+        //AcquireTagsDefine atd = start();
+        //InitDevicesList(atd);
+        HashMap<String, Object> cfg = AppConfig.getConfig(null);
     }
     public static AcquireTagsDefine start(){
+
         TagsDefineFileProcessor tdfp = new TagsDefineFileProcessor();
         AcquireTagsDefine atd = tdfp.load("config/tags.json");
         log.info("加载plc协议 {}", DataTypeNames.int16);
