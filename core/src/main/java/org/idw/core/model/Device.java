@@ -1,8 +1,15 @@
 package org.idw.core.model;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerAdapter;
+
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Device {
+public class Device extends ChannelDuplexHandler {
+    // 设备唯一标识符
+    private String  deviceID;
     // 设备名称
     private String  deviceName;
     // 通讯协议编号
@@ -17,7 +24,26 @@ public class Device {
     private int retryInterval;
     //
     private ConcurrentHashMap<String ,Tag> tags = new ConcurrentHashMap<String, Tag>();
+    // 当前设备对应的连接对象
+    private ChannelFuture channelFutrue;
 
+    /**
+     * 设备的连接状态
+     */
+    public enum State {
+        /**
+         * 等待链接中
+         */
+        waiting,
+        /**
+         * 已连接
+         */
+        connected,
+        /**
+         * 已断开连接
+         */
+        disconnected
+    }
     public void addTag(Tag t){
         tags.put(t.getKey(),t);
     }
@@ -74,4 +100,32 @@ public class Device {
     public void setRetryInterval(int retryInterval) {
         this.retryInterval = retryInterval;
     }
+
+    public String getDeviceID() {
+        return deviceID;
+    }
+
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
+    }
+
+    public ChannelFuture getChannel()
+    {
+        return this.channelFutrue;
+    }
+
+    public void setChannelFuture(ChannelFuture channel)
+    {
+        this.channelFutrue = channel;
+        //this.channelFutrue.addListener();
+    }
+
+
+    public boolean isConnected()
+    {
+        if(this.channelFutrue==null) return false;
+        return this.channelFutrue.channel().isActive();
+    }
+
+
 }

@@ -3,7 +3,9 @@ package org.idw.core.utils;
 import java.util.ArrayList;
 
 public class DeviceDefine {
-    // 折兵名称
+    // 设备唯一标识符
+    private String  deviceID;
+    // 设备名称
     private String  deviceName;
     // 通讯协议编号
     private String protocolType;
@@ -72,5 +74,13 @@ public class DeviceDefine {
 
     public void setTags(ArrayList<TagDefine> tags) {
         this.tags = tags;
+    }
+
+    public String getDeviceID() {
+        return deviceID;
+    }
+
+    public void setDeviceID(String deviceID) {
+        this.deviceID = deviceID;
     }
 }

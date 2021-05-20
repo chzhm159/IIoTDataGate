@@ -36,15 +36,30 @@ public class AppConfig {
         }
         return instance;
     }
-
-    public static HashMap<String,Object> getConfig(String path){
+    public static String getValueFromMap(String key,HashMap<String,Object> cfgMap){
+        if(StringUtils.isEmpty(key)) return null;
+        String[] ks = StringUtils.split(key,'.');
+        if(ks==null || ks.length==0) return null;
+        HashMap<String,Object> nv = null;
+        String value = null;
+        if(cfgMap==null) cfgMap=getConfig();
+        for (String kn : ks) {
+            if(nv==null) nv=cfgMap;
+            Object valueObj = nv.get(kn);
+            if (valueObj instanceof Map) {
+                nv = (HashMap<String, Object>) valueObj;
+            }else if(valueObj instanceof String){
+                value = (String)valueObj;
+                break;
+            }
+        }
+        return value;
+    }
+    public static HashMap<String,Object> getConfig(){
         HashMap<String,Object> config = getInstance().cfg;
         AppConfig inst = getInstance();
         if(inst.cfg==null){
-            if(StringUtils.isEmpty(path)){
-                path="config/config.yml";
-            }
-            inst.cfg = inst.load(path);
+            inst.cfg = inst.load("config/config.yml");
         }
         return inst.cfg;
     }
@@ -56,18 +71,33 @@ public class AppConfig {
                 return null;
             }
             InputStream input = new FileInputStream(cf);
-            Iterable<Object> configMap = yaml.loadAll(input);
-            for (Object data :configMap) {
-                LinkedHashMap<String, Object> item = (LinkedHashMap<String, Object>) data;
-                log.info("配置信息 {}",data);
-            }
-            return null;
+            HashMap<String,Object> configMap = yaml.load(input);
+            return configMap;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
         }
     }
-    public String resolveString(String tpl, HashMap<String,Object> values){
+
+    /**
+     * <p> 将 key 中的占位符替换为 config.yml 配置文件中 env 下同名属性的值. 例如: </p>
+     *
+     * <p> 字符串: 'config/${tagsfile}.json' </p>
+     * <p> config.yml文件中 env: </p>
+     * <p> &nbsp; &nbsp; tagsfile: 'abc' </p>
+     *
+     * <p>则返回 config/abc.json </p>
+     * @param tpl 包含 ${xxx} 格式占位符的字符串
+     * @param values 如果为 null,则使用 env 中的配置
+     * @return
+     */
+    public static String resolveString(String tpl, HashMap<String,Object> values){
+        if(values==null){
+            HashMap<String, Object> cfg = getConfig();
+            if(cfg==null)return null;
+            HashMap<String, Object> env = (HashMap<String, Object>)cfg.get("env");
+            values=env;
+        }
         StringSubstitutor sub = new StringSubstitutor(values);
         return sub.replace(tpl);
     }
