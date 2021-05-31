@@ -7,7 +7,7 @@ import io.netty.channel.ChannelHandlerAdapter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Device extends ChannelDuplexHandler {
+public class Device {
     // 设备唯一标识符
     private String  deviceID;
     // 设备名称
@@ -118,6 +118,7 @@ public class Device extends ChannelDuplexHandler {
     {
         this.channelFutrue = channel;
         //this.channelFutrue.addListener();
+
     }
 
 
@@ -126,6 +127,4 @@ public class Device extends ChannelDuplexHandler {
         if(this.channelFutrue==null) return false;
         return this.channelFutrue.channel().isActive();
     }
-
-
 }
