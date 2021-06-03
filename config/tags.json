@@ -3,7 +3,7 @@
     {
       "deviceID": "L1_D1",
       "deviceName": "1号桌面",
-      "protocolType": "keyence_upperlink",
+      "protocolType": "upperlink",
       "host": "127.0.0.1",
       "port": 8501,
       "connectTimeout": 3000,
@@ -41,7 +41,7 @@
       "deviceID": "L1_D2",
       "deviceName": "2号桌面",
       "modelNumber": "KEYENCE_KV-7500",
-      "protocolType": "keyence_upperlink",
+      "protocolType": "upperlink",
       "host": "127.0.0.1",
       "port": 8502,
       "connectTimeout": 3000,

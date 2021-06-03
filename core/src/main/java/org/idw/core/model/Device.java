@@ -4,12 +4,17 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelId;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Device {
     // 设备唯一标识符
     private String  deviceID;
+
+    // Channel ID
+    private ChannelId cid;
+
     // 设备名称
     private String  deviceName;
     // 通讯协议编号
@@ -43,6 +48,28 @@ public class Device {
          * 已断开连接
          */
         disconnected
+    }
+    /**
+     * 设备的连接状态
+     */
+    public static enum Protocols {
+        /**
+         * 基恩士PLC,上位链路协议
+         */
+        upperlink("upperlink"),
+        /**
+         * 西门子PLC,S7协议
+         */
+        s7("s7");
+        private String name;
+
+        private Protocols(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
     public void addTag(Tag t){
         tags.put(t.getKey(),t);
@@ -109,7 +136,7 @@ public class Device {
         this.deviceID = deviceID;
     }
 
-    public ChannelFuture getChannel()
+    public ChannelFuture getChannelFuture()
     {
         return this.channelFutrue;
     }
@@ -117,10 +144,15 @@ public class Device {
     public void setChannelFuture(ChannelFuture channel)
     {
         this.channelFutrue = channel;
-        //this.channelFutrue.addListener();
-
     }
 
+    public ChannelId getChannelId() {
+        return cid;
+    }
+
+    public void setChannelId(ChannelId cid) {
+        this.cid = cid;
+    }
 
     public boolean isConnected()
     {

@@ -1,5 +1,6 @@
 package org.idw.core.model;
 
+import io.netty.channel.ChannelId;
 import org.idw.core.utils.AcquireTagsDefine;
 import org.idw.core.utils.TagsDefineFileProcessor;
 import org.slf4j.Logger;
@@ -42,6 +43,24 @@ public class DeviceManager {
             String h = dev.getHost();
             int p = dev.getPort();
             return (host.equalsIgnoreCase(h) && port == p);
+        }).findFirst();
+        if(devOpt.isPresent()){
+            return devOpt.get();
+        }else{
+            return null;
+        }
+    }
+
+    /**
+     * 根据 Channel ID 查找对应的 Device
+     * @param cid
+     * @return
+     */
+    public Device getDeviceByChannelId(ChannelId cid){
+        Optional<Device> devOpt = this.devList.values().stream().filter(dev -> {
+            String devCId = dev.getChannelId().asLongText();
+            String channelLongId = cid.asLongText();
+            return (channelLongId.equalsIgnoreCase(devCId));
         }).findFirst();
         if(devOpt.isPresent()){
             return devOpt.get();
