@@ -9,12 +9,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
-import org.idw.core.model.Device;
-import org.idw.core.model.DeviceManager;
-import org.idw.core.model.Tag;
+import org.idw.core.model.*;
 import org.idw.core.testanddemo.UpperLinkHandler;
 import org.idw.core.utils.*;
-import org.idw.protocol.DataTypeNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,30 +30,30 @@ public class App {
         log.debug("app.run.path={}",AppConfig.getValueFromMap("app.run.path",cfg));
         log.debug("resolveString={}",AppConfig.resolveString("config/${tagsfile}.json",null));
         log.debug("app.name={}",((HashMap<String, Object>)cfg.get("app")).get("name"));
-        AcquireTagsDefine definfo = start();
+        AcquireTagsDefineModel definfo = start();
         deviceParser(definfo);
         BootstrapManager bootManager = BootstrapManager.getInstance();
         DeviceManager devManager = DeviceManager.getInstance();
         bootManager.setUp(devManager);
     }
-    public static AcquireTagsDefine start(){
+    public static AcquireTagsDefineModel start(){
         String tagFilePath = AppConfig.getValueFromMap("app.tags",null);
         String trueTagFilePath = AppConfig.resolveString(tagFilePath,null);
         TagsDefineFileProcessor tdfp = new TagsDefineFileProcessor();
-        AcquireTagsDefine atd = tdfp.load(trueTagFilePath);
+        AcquireTagsDefineModel atd = tdfp.load(trueTagFilePath);
         log.info("采集定义文件已加载 {}", atd);
         return atd;
     }
-    public static void deviceParser(AcquireTagsDefine tagDefs){
+    public static void deviceParser(AcquireTagsDefineModel tagDefs){
         DeviceManager devManager = DeviceManager.getInstance();
-        ArrayList<DeviceDefine> devList = tagDefs.getDevices();
+        ArrayList<DeviceDefineModel> devList = tagDefs.getDevices();
         devList.forEach(devDef->{
             Device dev = deviceDefineConvert2Device(devDef);
             devManager.addDevice(dev);
         });
     }
 
-    public static Device deviceDefineConvert2Device(DeviceDefine devDef){
+    public static Device deviceDefineConvert2Device(DeviceDefineModel devDef){
         Device dev = new Device();
         // 设备ID
         String devID = devDef.getDeviceID();
@@ -87,7 +84,7 @@ public class App {
         dev.setRetryInterval(devRT);
 
 
-        ArrayList<TagDefine> tagList = devDef.getTags();
+        ArrayList<TagDefineModel> tagList = devDef.getTags();
         tagList.forEach(tagDef->{
             Tag tag = tagDefineConvert2Tag(tagDef);
             dev.addTag(tag);
@@ -103,7 +100,7 @@ public class App {
      * @param tagDef
      * @return
      */
-    public static Tag tagDefineConvert2Tag(TagDefine tagDef){
+    public static Tag tagDefineConvert2Tag(TagDefineModel tagDef){
         Tag tag = new Tag();
         String key = tagDef.getKey();
         tag.setKey(key);
@@ -131,7 +128,7 @@ public class App {
         return tag;
     }
 
-    public static void initDevicesList(AcquireTagsDefine tagDefs){
+    public static void initDevicesList(AcquireTagsDefineModel tagDefs){
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         try {

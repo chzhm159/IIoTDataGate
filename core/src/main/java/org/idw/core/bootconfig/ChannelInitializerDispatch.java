@@ -1,10 +1,7 @@
-package org.idw.core.server;
+package org.idw.core.bootconfig;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import org.idw.core.bootconfig.ProtocolAssembler;
-import org.idw.core.bootconfig.S7Assembler;
-import org.idw.core.bootconfig.UpperLinkAssembler;
 import org.idw.core.model.Device;
 import org.idw.core.model.DeviceManager;
 import org.slf4j.Logger;

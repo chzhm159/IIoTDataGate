@@ -1,6 +1,6 @@
-package org.idw.core.utils;
+package org.idw.core.model;
 
-public class TagDefine {
+public class TagDefineModel {
     // 变量名称,方便使用者记忆
     private String tagName;
     // 变量的key,使用 : 分割,可以定义任意层级,但必须全局唯一 root:level1:name

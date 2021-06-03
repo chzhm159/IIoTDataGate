@@ -7,6 +7,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.idw.core.bootconfig.ChannelInitializerDispatch;
 import org.idw.core.model.Device;
 import org.idw.core.model.DeviceManager;
 import org.slf4j.Logger;

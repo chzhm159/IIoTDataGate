@@ -1,8 +1,8 @@
-package org.idw.core.utils;
+package org.idw.core.model;
 
 import java.util.ArrayList;
 
-public class DeviceDefine {
+public class DeviceDefineModel {
     // 设备唯一标识符
     private String  deviceID;
     // 设备名称
@@ -18,7 +18,7 @@ public class DeviceDefine {
     // 重试时间间隔,单位 毫秒
     private int retryInterval;
     //
-    private ArrayList<TagDefine> tags = new ArrayList<TagDefine>();
+    private ArrayList<TagDefineModel> tags = new ArrayList<TagDefineModel>();
 
     public String getDeviceName() {
         return deviceName;
@@ -68,11 +68,11 @@ public class DeviceDefine {
         this.retryInterval = retryInterval;
     }
 
-    public ArrayList<TagDefine> getTags() {
+    public ArrayList<TagDefineModel> getTags() {
         return tags;
     }
 
-    public void setTags(ArrayList<TagDefine> tags) {
+    public void setTags(ArrayList<TagDefineModel> tags) {
         this.tags = tags;
     }
 

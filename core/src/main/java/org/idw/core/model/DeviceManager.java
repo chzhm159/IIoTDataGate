@@ -1,8 +1,6 @@
 package org.idw.core.model;
 
 import io.netty.channel.ChannelId;
-import org.idw.core.utils.AcquireTagsDefine;
-import org.idw.core.utils.TagsDefineFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
