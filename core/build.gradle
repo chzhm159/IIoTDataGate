@@ -33,6 +33,8 @@ dependencies {
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.28'
     // https://mvnrepository.com/artifact/org.apache.commons/commons-text
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.9'
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
 
 
 }

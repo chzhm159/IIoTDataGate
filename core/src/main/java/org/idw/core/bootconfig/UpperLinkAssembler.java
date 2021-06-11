@@ -18,7 +18,7 @@ public class UpperLinkAssembler extends ProtocolAssembler {
         DeviceManager dm = DeviceManager.getInstance();
         Device dev = dm.getDeviceByChannelId(cid);
         LineBasedFrameDecoder ld = new LineBasedFrameDecoder(4096,true,true);
-        DefaultLastHandler dh = new DefaultLastHandler(dev);
+        UpperlinkHandler dh = new UpperlinkHandler(dev);
         pipeline.addFirst("linebaseDecoder",ld);
         pipeline.addFirst("logicHandler",dh);
         log.info("上位链路协议 handler 配置完成");

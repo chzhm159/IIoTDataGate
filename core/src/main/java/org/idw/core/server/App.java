@@ -75,6 +75,10 @@ public class App {
         String devProtocol = devDef.getProtocolType();
         dev.setProtocolType(devProtocol);
 
+        // 设备型号
+        String devModel = devDef.getDeviceModel();
+        dev.setDeviceModel(devModel);
+
         // 链接超时设置
         int  devCT = devDef.getConnectTimeout();
         dev.setConnectTimeout(devCT);

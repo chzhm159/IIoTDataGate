@@ -7,6 +7,10 @@ public class DeviceDefineModel {
     private String  deviceID;
     // 设备名称
     private String  deviceName;
+
+    // 设备型号,某些plc不同的型号协议包存在差别
+    private String  deviceModel;
+
     // 通讯协议编号
     private String protocolType;
     // 设备地址
@@ -82,5 +86,13 @@ public class DeviceDefineModel {
 
     public void setDeviceID(String deviceID) {
         this.deviceID = deviceID;
+    }
+
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
     }
 }

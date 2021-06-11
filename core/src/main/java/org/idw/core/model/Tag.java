@@ -1,5 +1,7 @@
 package org.idw.core.model;
 
+import io.netty.channel.ChannelHandlerContext;
+
 public class Tag {
     // 变量名称,方便使用者记忆
     private String tagName;
@@ -110,5 +112,9 @@ public class Tag {
 
     public void setLoopRead(boolean loopRead) {
         this.loopRead = loopRead;
+    }
+
+    public void OnValue(ChannelHandlerContext ctx, Object msg){
+
     }
 }

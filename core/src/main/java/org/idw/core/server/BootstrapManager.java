@@ -46,8 +46,8 @@ public class BootstrapManager {
             String host = dev.getHost();
             int port = dev.getPort();
             ChannelFuture f = b.connect(host, port);
+            dev.setChannelFuture(f);
             ChannelId cid = f.channel().id();
-            dev.setChannelId(cid);
             log.info("绑定的ID为 {}",cid.asLongText());
             // TODO 处理链接失败的重试
         });

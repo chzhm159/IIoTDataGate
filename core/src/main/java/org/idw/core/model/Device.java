@@ -17,6 +17,10 @@ public class Device {
 
     // 设备名称
     private String  deviceName;
+
+    // 设备型号,某些plc不同的型号协议包存在差别
+    private String  deviceModel;
+
     // 通讯协议编号
     private String protocolType;
     // 设备地址
@@ -80,6 +84,11 @@ public class Device {
     public Tag getTag(String tk){
         return tags.get(tk);
     }
+
+    public ConcurrentHashMap<String, Tag> getTags() {
+        return tags;
+    }
+
     public String getDeviceName() {
         return deviceName;
     }
@@ -136,14 +145,23 @@ public class Device {
         this.deviceID = deviceID;
     }
 
+    public String getDeviceModel() {
+        return deviceModel;
+    }
+
+    public void setDeviceModel(String deviceModel) {
+        this.deviceModel = deviceModel;
+    }
     public ChannelFuture getChannelFuture()
     {
         return this.channelFutrue;
     }
 
-    public void setChannelFuture(ChannelFuture channel)
+    public void setChannelFuture(ChannelFuture channelFutrue)
     {
-        this.channelFutrue = channel;
+        this.channelFutrue = channelFutrue;
+        ChannelId cid = channelFutrue.channel().id();
+        this.setChannelId(cid);
     }
 
     public ChannelId getChannelId() {
