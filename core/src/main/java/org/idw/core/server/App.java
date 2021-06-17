@@ -129,6 +129,9 @@ public class App {
 
         int RInterval = tagDef.getReadInterval();
         tag.setReadInterval(RInterval);
+
+        int RTimeout = tagDef.getReadTimeout();
+        tag.setReadTimeout(RTimeout);
         return tag;
     }
 

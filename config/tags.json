@@ -18,7 +18,8 @@
           "offset":0,
           "unit": "word",
           "count": 1,
-          "readInterval": 1000,
+          "readInterval": 3000,
+          "readTimeout": 3000,
           "readTimes": 10,
           "loopRead": true,
           "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_1"
@@ -31,7 +32,8 @@
           "offset":0,
           "unit": "word",
           "count": 2,
-          "readInterval": 1000,
+          "readInterval": 5000,
+          "readTimeout": 8000,
           "readTimes": 10,
           "loopRead": true,
           "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_2"

@@ -17,6 +17,8 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
@@ -35,9 +37,11 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
 
     private UpperLink upperLinkProtocol;
     private Device device;
-
+    private Exchanger<Object> exchanger = new Exchanger<>();
+    private AtomicBoolean sended = new AtomicBoolean(false);
+    private volatile int readTimeout = 3000;
     // 由于 上位链路协议 发送指令与返回数据包没有对应关系,所以只能模拟同步请求
-    final CountDownLatch countDownLatch = new CountDownLatch(1);
+    // final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     public UpperlinkHandler(Device dev){
         this.device = dev;
@@ -52,19 +56,70 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         start();
     }
 
+    private void sendSync(JobExecutionContext context){
+        // 此处保证只有一条线程在发送读取指令
+        synchronized (this){
+            JobDataMap jobData = context.getJobDetail().getJobDataMap();
+            String tagKey = jobData.getString("tagKey");
+            String devID = this.device.getDeviceID();
+            Tag  tag = this.device.getTag(tagKey);
+            if(tag==null){
+                return ;
+            }
+            ChannelFuture channelFuture = this.device.getChannelFuture();
+            Channel channel = channelFuture.channel();
+            HashMap<String,Object> opt = new HashMap<String,Object>();
+            opt.put("registerType",tag.getRegisterType());
+            opt.put("registerIndex",tag.getRegisterIndex());
+            opt.put("unit","uint16");
+            opt.put("count",tag.getCount());
+            ArrayList<Byte> cmd = upperLinkProtocol.getReadCommand(opt);
+            Byte[] list2 = new Byte[cmd.size()];
+            byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
+            ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
+            // 保证 先发送后接受 ---1
+            boolean ret = sended.compareAndSet(false,true);
+            if(!ret){
+                log.warn("设备[{}],变量[{}] 指令发送请求无效,因上一个指令未完成",devID,tagKey);
+                return ;
+            }
+            // 发送数据
+            channel.writeAndFlush(out);
+            try {
+                // 此处保证发送完之后等待结果,收到结果后才释放本函数的锁
+                log.debug("设备[{}],变量[{}]已发送指令,等待结果中....",devID,tagKey);
+                readTimeout = tag.getReadTimeout();
+                String value = (String)exchanger.exchange(tagKey,tag.getReadTimeout(),TimeUnit.MILLISECONDS);
+                log.debug("设备[{}],变量[{}]={}",devID,tagKey,value);
+            }catch (Exception e){
+                // log.error("设备[{}]中变量[{}]指令进入队列失败: {}",devID,tag.getKey(),e.getStackTrace());
+                e.printStackTrace();
+                log.error("设备[{}]中变量[{}]发送指令后等待结果超时{}",devID,tag.getKey(),e.getStackTrace());
+                return ;
+            }
+            log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        }
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        //在这里可以处理硬件发送过来的数据
-
-        // String tagKey  = request.take();
         ByteBuf content = (ByteBuf) msg;
-        log.debug("设备[{}],变量[{}] 收到数据：{}" ,device.getDeviceID(),tagKey, ByteBufUtil.hexDump(content));
-        request.release();
-        // countDownLatch.countDown();
-        // this.notify();
-
-
+        String msgDump = ByteBufUtil.hexDump(content);
+        // 保证 先发送后接受 ---2
+        boolean ret = sended.compareAndSet(true,false);
+        if(!ret){
+            log.warn("收到数据,但被丢弃,因可能是网络原因重复数据或者设备主动发送的数据 [{}]",msgDump);
+            return ;
+        }
+        try{
+            log.debug("设备[{}],读取超时=[{}]" ,device.getDeviceID(),readTimeout);
+            String tagKey = (String)exchanger.exchange(msgDump,readTimeout,TimeUnit.MILLISECONDS);
+            log.debug("设备[{}],变量[{}] 收到数据：{}" ,device.getDeviceID(),tagKey, msgDump);
+        }catch (Exception e){
+            log.error("设备[{}],收到数据：{} ,但因发送指令超时导致异常:{} " ,device.getDeviceID(),msgDump,e.getStackTrace());
+        }
     }
+
 
     /**
      * 每个 Device 初始化一个定时器, 并将每个 Tag 配置的采集周期映射为一个 Job
@@ -87,7 +142,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
                         .withIdentity(tag.getKey(), jobGroup)
                         .startNow()
                         .withSchedule(simpleSchedule()
-                                .withIntervalInSeconds(5)
+                                .withIntervalInMilliseconds(tag.getReadInterval())
                                 .repeatForever())
                         .build();
 
@@ -106,56 +161,6 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
             log.error("设备[{}],定时器启动异常:{}",this.device.getDeviceID(),e.getStackTrace());
         }
     }
-
-    private Semaphore  request = new Semaphore (0);
-    private void sendSync(JobExecutionContext context){
-        synchronized (this){
-            JobDataMap jobData = context.getJobDetail().getJobDataMap();
-            String tagKey = jobData.getString("tagKey");
-            String devID = this.device.getDeviceID();
-            Tag  tag = this.device.getTag(tagKey);
-            if(tag==null){
-                return ;
-            }
-            ChannelFuture channelFuture = this.device.getChannelFuture();
-            Channel channel = channelFuture.channel();
-            HashMap<String,Object> opt = new HashMap<String,Object>();
-            opt.put("registerType",tag.getRegisterType());
-            opt.put("registerIndex",tag.getRegisterIndex());
-            opt.put("unit","uint16");
-            opt.put("count",tag.getCount());
-            ArrayList<Byte> cmd = upperLinkProtocol.getReadCommand(opt);
-            Byte[] list2 = new Byte[cmd.size()];
-            byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
-            ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
-            channel.writeAndFlush(out);
-            try {
-                request.acquire(1);
-                // request.await(60000,TimeUnit.SECONDS);
-                log.debug("设备[{}]变量[{}]已发送指令",devID,tag.getKey());
-            }catch (Exception e){
-                log.error("设备[{}]中变量[{}]指令进入队列失败: {}",devID,tag.getKey(),e.getStackTrace());
-                e.printStackTrace();
-                return ;
-            }
-            try {
-
-                log.debug("================ countDownLatch.count={} ",countDownLatch.getCount());
-                // this.wait(1000000);
-                // boolean timeout = countDownLatch.await(60,TimeUnit.SECONDS);
-                log.debug("================ timeout={},countDownLatch.count={} ","",countDownLatch.getCount());
-//                if(!timeout){
-//                    String waitTagKey= request.take();
-//                    log.debug("设备[{}]变量[{}]等待结果超时,移除队列",devID,waitTagKey);
-//                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.error("设备[{}]中变量[{}]发送指令后等待结果超时{}",devID,tag.getKey(),e.getStackTrace());
-            }
-            log.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        }
-    }
-
     @Override
     public String getName() {
         return this.device.getDeviceID();

@@ -23,5 +23,8 @@
 hs_err_pid*
 build
 protocol/build
+protocol/out
 core/build
+core/out
 web/build
+web/out
