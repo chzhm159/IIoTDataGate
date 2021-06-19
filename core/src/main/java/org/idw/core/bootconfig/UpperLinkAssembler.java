@@ -2,6 +2,7 @@ package org.idw.core.bootconfig;
 
 import io.netty.channel.*;
 import io.netty.handler.codec.LineBasedFrameDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 import org.idw.core.model.Device;
 import org.idw.core.model.DeviceManager;
 import org.slf4j.Logger;
@@ -19,8 +20,8 @@ public class UpperLinkAssembler extends ProtocolAssembler {
         Device dev = dm.getDeviceByChannelId(cid);
         LineBasedFrameDecoder ld = new LineBasedFrameDecoder(4096,true,true);
         UpperlinkHandler dh = new UpperlinkHandler(dev);
-        pipeline.addFirst("linebaseDecoder",ld);
-        pipeline.addFirst("logicHandler",dh);
+        pipeline.addLast("linebaseDecoder",ld);
+        pipeline.addLast("logicHandler",dh);
         log.info("上位链路协议 handler 配置完成");
     }
 }

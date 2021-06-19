@@ -18,11 +18,11 @@
           "offset":0,
           "unit": "word",
           "count": 1,
-          "readInterval": 3000,
-          "readTimeout": 3000,
+          "readInterval": 5000,
+          "readTimeout": 60000,
           "readTimes": 10,
           "loopRead": true,
-          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_1"
+          "valueHandler": "custom.service.demo#onOutput"
         },
         {
           "tagName": "1号不良",
@@ -32,11 +32,11 @@
           "offset":0,
           "unit": "word",
           "count": 2,
-          "readInterval": 5000,
-          "readTimeout": 8000,
+          "readInterval": 10000,
+          "readTimeout": 60000,
           "readTimes": 10,
           "loopRead": true,
-          "valueHandler": "CustomHandlerOnValue.SYVETagHandler.OnStateModOutput_2"
+          "valueHandler": "custom.service.demo#onBad"
         }
       ]
     }

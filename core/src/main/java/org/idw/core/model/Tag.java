@@ -1,8 +1,17 @@
 package org.idw.core.model;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.commons.lang3.time.StopWatch;
+import org.idw.core.utils.TagsDefineFileProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 
 public class Tag {
+    private static final Logger log = LoggerFactory.getLogger(Tag.class);
     // 变量名称,方便使用者记忆
     private String tagName;
     // 变量的key,使用 : 分割,可以定义任意层级,但必须全局唯一 root:level1:name
@@ -27,6 +36,9 @@ public class Tag {
     private int readTimes;
     // 是否循环读取
     private boolean loopRead;
+
+    private Object instance;
+    private Method valueHandlerMethod;
 
     public String getTagName() {
         return tagName;
@@ -124,6 +136,34 @@ public class Tag {
         this.readTimeout = readTimeout;
     }
 
-    public void OnValue(ChannelHandlerContext ctx, Object msg){
+
+    public Object getInstance() {
+        return instance;
+    }
+
+    public void setInstance(Object instance) {
+        this.instance = instance;
+    }
+
+    public Method getValueHandlerMethod() {
+        return valueHandlerMethod;
+    }
+
+    public void setValueHandlerMethod(Method valueHandlerMethod) {
+        this.valueHandlerMethod = valueHandlerMethod;
+    }
+
+    public void onValue(Object msg){
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        try {
+            valueHandlerMethod.invoke(instance,this,msg);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        stopWatch.stop();
+        log.debug("变量[{}],收到数据后耗时: {} 毫秒",this.getTagName(),stopWatch.getTime(TimeUnit.MILLISECONDS) );
     }
 }

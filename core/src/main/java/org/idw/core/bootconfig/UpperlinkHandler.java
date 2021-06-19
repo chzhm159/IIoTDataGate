@@ -89,8 +89,9 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
                 // 此处保证发送完之后等待结果,收到结果后才释放本函数的锁
                 log.debug("设备[{}],变量[{}]已发送指令,等待结果中....",devID,tagKey);
                 readTimeout = tag.getReadTimeout();
-                String value = (String)exchanger.exchange(tagKey,tag.getReadTimeout(),TimeUnit.MILLISECONDS);
+                ByteBuf value = (ByteBuf)exchanger.exchange(tagKey,tag.getReadTimeout(),TimeUnit.MILLISECONDS);
                 log.debug("设备[{}],变量[{}]={}",devID,tagKey,value);
+                tag.onValue(value);
             }catch (Exception e){
                 // log.error("设备[{}]中变量[{}]指令进入队列失败: {}",devID,tag.getKey(),e.getStackTrace());
                 e.printStackTrace();
@@ -113,7 +114,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         }
         try{
             log.debug("设备[{}],读取超时=[{}]" ,device.getDeviceID(),readTimeout);
-            String tagKey = (String)exchanger.exchange(msgDump,readTimeout,TimeUnit.MILLISECONDS);
+            String tagKey = (String)exchanger.exchange(content,readTimeout,TimeUnit.MILLISECONDS);
             log.debug("设备[{}],变量[{}] 收到数据：{}" ,device.getDeviceID(),tagKey, msgDump);
         }catch (Exception e){
             log.error("设备[{}],收到数据：{} ,但因发送指令超时导致异常:{} " ,device.getDeviceID(),msgDump,e.getStackTrace());
