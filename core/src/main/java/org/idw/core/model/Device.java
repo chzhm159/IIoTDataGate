@@ -1,14 +1,18 @@
 package org.idw.core.model;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import io.netty.channel.ChannelDuplexHandler;
+import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelId;
-
+import io.netty.channel.ChannelPipeline;
+import org.idw.core.bootconfig.OnTagWriteListener;
+import org.idw.core.bootconfig.UpperlinkHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
 
 public class Device {
+    private static final Logger log = LoggerFactory.getLogger(Device.class);
     // 设备唯一标识符
     private String  deviceID;
 
@@ -36,6 +40,15 @@ public class Device {
     // 当前设备对应的连接对象
     private ChannelFuture channelFutrue;
 
+    // 设备事件总线
+    private AsyncEventBus eventBus = new AsyncEventBus(Executors.newSingleThreadExecutor());
+    // 事件处理
+    private DeviceEvent devEvent;
+
+    public Device(){
+        devEvent  = new DeviceEvent(this);
+        eventBus.register(devEvent);
+    }
     /**
      * 设备的连接状态
      */
@@ -77,6 +90,7 @@ public class Device {
     }
     public void addTag(Tag t){
         tags.put(t.getKey(),t);
+        t.setEventBus(eventBus);
     }
     public boolean tagExists(String tk){
         return tags.containsKey(tk);
@@ -85,6 +99,33 @@ public class Device {
         return tags.get(tk);
     }
 
+
+    public void setChannelFuture(ChannelFuture channelFutrue)
+    {
+        this.channelFutrue = channelFutrue;
+        ChannelId cid = channelFutrue.channel().id();
+        this.setChannelId(cid);
+    }
+
+    public boolean isConnected()
+    {
+        if(this.channelFutrue==null) return false;
+        return this.channelFutrue.channel().isActive();
+    }
+    private OnTagWriteListener writeListener;
+    public void setChannelHandler(OnTagWriteListener wlistener){
+        this.writeListener = wlistener;
+    }
+
+    public void write(TagData4Write data){
+        String tagKey = data.getTagKey();
+        Tag tag = this.getTag(tagKey);
+        if(tag==null){
+            log.error("指定的 TagKey={} 未能找到对应的Tag对象,无法写入",tagKey);
+            return ;
+        }
+        writeListener.doWrite(tag,data);
+    }
     public ConcurrentHashMap<String, Tag> getTags() {
         return tags;
     }
@@ -156,25 +197,11 @@ public class Device {
     {
         return this.channelFutrue;
     }
-
-    public void setChannelFuture(ChannelFuture channelFutrue)
-    {
-        this.channelFutrue = channelFutrue;
-        ChannelId cid = channelFutrue.channel().id();
-        this.setChannelId(cid);
-    }
-
     public ChannelId getChannelId() {
         return cid;
     }
 
     public void setChannelId(ChannelId cid) {
         this.cid = cid;
-    }
-
-    public boolean isConnected()
-    {
-        if(this.channelFutrue==null) return false;
-        return this.channelFutrue.channel().isActive();
     }
 }

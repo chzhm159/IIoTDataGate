@@ -27,6 +27,7 @@ public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
     private static final String class_method_regex = "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+[0-9a-z_]+#([a-z_]+[0-9a-z_]+)+";
+
     private static final Pattern class_method_pattern = Pattern.compile(class_method_regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     public static void main(String[] args) {
@@ -143,10 +144,15 @@ public class App {
         tag.setReadInterval(RInterval);
 
         int RTimeout = tagDef.getReadTimeout();
-        tag.setReadTimeout(RTimeout);
-        
+        tag.setCmdTimeout(RTimeout);
+
+        String operate = tagDef.getOperate();
+        tag.setOperate(operate);
+
         String clazzDef = tagDef.getValueHandler();
         Matcher match = class_method_pattern.matcher(clazzDef);
+        // 这里处理的潜台词是 每个 Tag 变量对应一个实例,虽然可以将多个变量指定为同一个类
+        // 但却是处在不同的对象中,如果面对多个变量之间互相关联的场景中,是不方便处理的
         if (match.matches()) {
             if (!StringUtils.isEmpty(clazzDef)) {
                 try {
@@ -159,7 +165,7 @@ public class App {
                     tag.setValueHandlerMethod(mtd);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    log.error("变量[{}]定义的 ValueHandler 函数绑定异常: ", e.getStackTrace());
+                    log.error("变量[{}]定义的 ValueHandler 函数绑定异常: ", e.getStackTrace().toString());
                 }
             } else {
                 log.warn("变量[{}] 未指定 ValueHandler 跳过函数绑定.", key);

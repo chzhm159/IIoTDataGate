@@ -16,11 +16,12 @@
           "registerType": "FM",
           "registerIndex": 1,
           "offset":0,
-          "unit": "word",
-          "count": 1,
+          "unit": "uint16",
+          "count": 2,
           "readInterval": 5000,
           "readTimeout": 60000,
           "readTimes": 10,
+          "operate": "r",
           "loopRead": true,
           "valueHandler": "custom.service.demo#onOutput"
         },
@@ -30,11 +31,12 @@
           "registerType": "FM",
           "registerIndex": 2,
           "offset":0,
-          "unit": "word",
+          "unit": "uint16",
           "count": 2,
           "readInterval": 10000,
           "readTimeout": 60000,
           "readTimes": 10,
+          "operate": "r",
           "loopRead": true,
           "valueHandler": "custom.service.demo#onBad"
         }

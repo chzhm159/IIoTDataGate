@@ -1,6 +1,10 @@
 package org.idw.core.utils;
 
 public class IByteUtils {
+
+    public static Short asciiString2Short(String vs){
+        return Short.parseShort(vs);
+    }
     /// <summary>
     /// 16进制字符串转换为16位无符号整数.例如:
     /// 0BB8 => 3000

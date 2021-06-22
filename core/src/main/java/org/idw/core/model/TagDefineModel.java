@@ -26,6 +26,9 @@ public class TagDefineModel {
     // 是否循环读取
     private boolean loopRead;
 
+    // 操作 r:只读,w:只写,rw:读写
+    private String operate;
+
     public String getTagName() {
         return tagName;
     }
@@ -120,5 +123,13 @@ public class TagDefineModel {
 
     public void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
+    }
+
+    public String getOperate() {
+        return operate;
+    }
+
+    public void setOperate(String operate) {
+        this.operate = operate;
     }
 }

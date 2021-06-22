@@ -172,13 +172,15 @@ public class UpperLink extends AbstractProtocol {
         stringBuilder.append(" ");
         stringBuilder.append(count);
         stringBuilder.append(" ");
-        for(int i=1;i<=count;i++){
+        stringBuilder.append(args.get("data").toString());
+        // warning 数据区域的内容,暂时要求调用者传入吧,不在这里封装了.
+        /*for(int i=0;i<count;i++){
             String ki = "v_"+i;
             if(!args.containsKey(ki)){
                 log.error("写入参数数量为:{},但缺少对应的数值: {}",count,ki);
                 return null;
             }
-            // TODO 这里可以再根据 unit 来对数值做进一步的验证.
+
             stringBuilder.append(args.get(ki).toString());
             stringBuilder.append(" ");
         }
@@ -187,6 +189,7 @@ public class UpperLink extends AbstractProtocol {
         if(lastSpaceChar==(stringBuilder.length()-1)){
             stringBuilder.deleteCharAt(lastSpaceChar);
         }
+        */
         stringBuilder.append("\r");
         String cmd = stringBuilder.toString();
         log.debug("write command string: {}",cmd);
