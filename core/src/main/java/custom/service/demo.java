@@ -26,7 +26,7 @@ public class demo {
         // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
         String vStr = value.toString(Charset.forName("ascii"));
         int count = tag.getCount();
-        log.debug("{} onOutput 变量[{}],数据接收回调已正常调用: {}={}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value),vStr);
+        //log.debug("{} onOutput 变量[{}],数据接收回调已正常调用: {}={}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value),vStr);
         // 上位链路协议中,如果返回错误数据,是已 E 开头的
         boolean err = StringUtils.startsWithIgnoreCase(vStr,"E");
         if(err){
@@ -50,11 +50,34 @@ public class demo {
         data.setTagKey(tag.getKey());
         data.setCount(2);
         data.setData("123 456");
-        tag.write(data);
+        // tag.write(data);
     }
 
     public void onBad(Tag tag, ByteBuf value){
         inistNanme = this.hashCode()+"___onBad";
-        log.debug("{} onBad 变量[{}],数据接收回调已正常调用: {}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value));
+        // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
+        String vStr = value.toString(Charset.forName("ascii"));
+        int count = tag.getCount();
+        //log.debug("{} 2个不良 变量[{}],数据接收回调已正常调用: {}={}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value),vStr);
+        // 上位链路协议中,如果返回错误数据,是已 E 开头的
+        boolean err = StringUtils.startsWithIgnoreCase(vStr,"E");
+        if(err){
+            log.error("返回错误数据:{}",vStr);
+            return ;
+        }
+        // 上位链路协议中,如果返回多个数据,是以空格分开
+        String[] values = vStr.split(" ");
+        String unitName = tag.getUnit();
+        for (String vv : values) {
+            // 因为ASCII 所以基本上就是用字符串转换为特定类型. 后续可能考虑 框架层面处理这个问题,但是需要自行处理异常
+            // 16位整数
+            Short v = Short.parseShort(vv);
+            // 32位浮点数
+            // Float.valueOf(vv);
+            // 32位整数
+            // Integer.valueOf(vv);
+            log.debug("2个不良 变量[{}]={}",tag.getTagName(),v);
+        }
+        //log.debug("{} onBad 变量[{}],数据接收回调已正常调用: {}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value));
     }
 }
