@@ -9,11 +9,24 @@ sourceCompatibility = '1.8'
 repositories {
     // mavenCentral()
     maven {
-        url "http://maven.aliyun.com/nexus/content/groups/public"
+        url "https://maven.aliyun.com/repository/public"
     }
 }
 dependencies {
     //testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     //testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+allprojects {
+    sourceCompatibility = 1.8
+    repositories {
+        // mavenCentral()
+        maven {
+            url "https://maven.aliyun.com/repository/public"
+        }
+    }
+}
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'application'
 }
 

@@ -1,4 +1,7 @@
+enableFeaturePreview('VERSION_CATALOGS')
 rootProject.name = 'IIoTDataGate'
+include 'common'
 include 'protocol'
 include 'core'
 include 'web'
+

@@ -1,10 +1,4 @@
 package org.idw.protocol.keyence;
-
-
-
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.BinaryCodec;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.idw.protocol.AbstractProtocol;
@@ -13,21 +7,16 @@ import org.idw.protocol.ProtocolNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class UpperLink extends AbstractProtocol {
     private static final Logger log = LoggerFactory.getLogger(UpperLink.class);
-    // 不同的地址区域对应的最大地址编号
+    //
     private HashMap<String,Integer> registerType_MaxRange = new HashMap<String,Integer>();
     private HashMap<String,String> dataTypes = new HashMap<String,String>();
 
