@@ -3,7 +3,7 @@
 
 # Log file
 *.log
-
+**.log
 # BlueJ files
 *.ctxt
 
@@ -24,6 +24,8 @@ hs_err_pid*
 build
 protocol/build
 protocol/out
+common/build
+common/out
 core/build
 core/out
 web/build

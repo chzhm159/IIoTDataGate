@@ -1,6 +1,7 @@
 package org.idw.protocol.keyence;
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.idw.common.stringres.MessageResources;
 import org.idw.protocol.AbstractProtocol;
 import org.idw.protocol.DataTypeNames;
 import org.idw.protocol.ProtocolNames;
@@ -37,45 +38,44 @@ public class UpperLink extends AbstractProtocol {
         String type = null,unit=null;
         int index =-1 , count=1;
         if(registerTypeObj==null){
-            log.error("未指定寄存器区域名称,例如DM/FM,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.registerType.null","未指定寄存器区域名称,例如DM/FM,故无法构造读取指令"));
             return null;
         }
         if(registerIndexObj==null){
-            log.error("未指定寄存器区域编号,例如 100,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.registerIndex.null","未指定寄存器区域编号,例如 100,故无法构造读取指令"));
             return null;
         }
         try{
             index = Integer.valueOf(registerIndexObj.toString());
             if(index < 0){
-                log.error("寄存器区域编号必须大于等于0.当前参数为:{}",index);
+                log.error(MessageResources.getMessage("error.index.lessthan0","寄存器区域编号必须大于等于0.当前参数为:{}"),index);
                 return null;
             }
         }catch (Exception e){
-            log.error("指定寄存器区域编号非数字类型 {} Error: {}",registerIndexObj.toString(),e.getMessage());
+            log.error(MessageResources.getMessage("error.index.nonnumeric","指定寄存器区域编号非数字类型 {} Error: {}"),registerIndexObj.toString(),e.getMessage());
             return null;
         }
 
         if(countObj==null){
-            log.warn("未指定将要读取多少个数据,默认读取 1 个单位");
+            log.warn(MessageResources.getMessage("error.count.null","未指定将要读取多少个数据,默认读取 1 个单位"));
         }else{
             try{
                 count = Integer.valueOf(countObj.toString());
                 if(count < 0){
-                    log.error("读取数量必须大于0.当前参数为:{}",count);
+                    log.error(MessageResources.getMessage("error.rcount.lessthan0","读取数量必须大于0.当前参数为:{}"),count);
                     return null;
                 }
             }catch (Exception e){
-                log.error("读取数量必须为数字类型 {} Error: {}",countObj.toString(),e.getMessage());
+                log.error(MessageResources.getMessage("error.rcount.nonnumeric","读取数量必须为数字类型 {} Error: {}"),countObj.toString(),e.getMessage());
                 return null;
             }
         }
         if(unitObj==null){
-            log.error("未指定将要读取地址的数据类型,例如 .U,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.runit.null","未指定将要读取地址的数据类型,例如 .U,故无法构造读取指令"));
             return null;
         }else{
-
             if(!dataTypes.containsKey(unitObj.toString())){
-                log.error("不支持的数据类型{}",unitObj.toString());
+                log.error(MessageResources.getMessage("error.type.unsupported","不支持的数据类型{}"),unitObj.toString());
                 return null;
             }
             unit = dataTypes.get(unitObj.toString());
@@ -108,45 +108,45 @@ public class UpperLink extends AbstractProtocol {
         String type = null,unit=null;
         int index =-1 , count=1;
         if(registerTypeObj==null){
-            log.error("未指定寄存器区域名称,例如DM/FM,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.registerType.null","未指定寄存器区域名称,例如DM/FM,故无法构造读取指令"));
             return null;
         }
         if(registerIndexObj==null){
-            log.error("未指定寄存器区域编号,例如 100,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.registerIndex.null","未指定寄存器区域编号,例如 100,故无法构造读取指令"));
             return null;
         }
         try{
             index = Integer.valueOf(registerIndexObj.toString());
             if(index < 0){
-                log.error("寄存器区域编号必须大于等于0.当前参数为:{}",index);
+                log.error(MessageResources.getMessage("error.index.lessthan0","寄存器区域编号必须大于等于0.当前参数为:{}"),index);
                 return null;
             }
         }catch (Exception e){
-            log.error("指定寄存器区域编号非数字类型 {} Error: {}",registerIndexObj.toString(),e.getMessage());
+            log.error(MessageResources.getMessage("error.index.nonnumeric","指定寄存器区域编号非数字类型 {} Error: {}"),registerIndexObj.toString(),e.getMessage());
             return null;
         }
 
         if(countObj==null){
-            log.warn("未指定将要读取多少个数据,默认读取 1 个单位");
+            log.warn(MessageResources.getMessage("error.wcount.null","未指定将要读取多少个数据,默认读取 1 个单位"));
         }else{
             try{
                 count = Integer.valueOf(countObj.toString());
                 if(count < 0){
-                    log.error("读取数量必须大于0.当前参数为:{}",count);
+                    log.error(MessageResources.getMessage("error.wcount.lessthan0","写入数量必须大于0.当前参数为:{}"),count);
                     return null;
                 }
             }catch (Exception e){
-                log.error("读取数量必须为数字类型 {} Error: {}",countObj.toString(),e.getMessage());
+                log.error(MessageResources.getMessage("error.wcount.nonnumeric","写入数量必须为数字类型 {} Error: {}"),countObj.toString(),e.getMessage());
                 return null;
             }
         }
         if(unitObj==null){
-            log.error("未指定将要读取地址的数据类型,例如 .U,故无法构造读取指令");
+            log.error(MessageResources.getMessage("error.wunit.null","未指定将要写入地址的数据类型,例如 .U,故无法构造读取指令"));
             return null;
         }else{
 
             if(!dataTypes.containsKey(unitObj.toString())){
-                log.error("不支持的数据类型{}",unitObj.toString());
+                log.error(MessageResources.getMessage("error.type.unsupported","不支持的数据类型{}"),unitObj.toString());
                 return null;
             }
             unit = dataTypes.get(unitObj.toString());
@@ -162,6 +162,7 @@ public class UpperLink extends AbstractProtocol {
         stringBuilder.append(count);
         stringBuilder.append(" ");
         stringBuilder.append(args.get("data").toString());
+
         // warning 数据区域的内容,暂时要求调用者传入吧,不在这里封装了.
         /*for(int i=0;i<count;i++){
             String ki = "v_"+i;
@@ -198,6 +199,8 @@ public class UpperLink extends AbstractProtocol {
         opt.put("count",2);
         ArrayList<Byte> cmds = up.getReadCommand(opt);
         log.debug(cmds.toString());
+        log.debug(MessageResources.getMessage("user-label","未能获取到"));
+
     }
     private void initValidDataMemory(String cpu){
         // TODO 根据型号,初始化对应的可读写区域.但是目前先不处理
