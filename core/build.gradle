@@ -1,12 +1,12 @@
 plugins {
-    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'application'
 }
 
 group 'org.idw.core'
 version '1.0-SNAPSHOT'
 archivesBaseName = 'core'
-sourceCompatibility = 1.8
+
 application{
     mainClassName('org.idw.core.server.App')
 }

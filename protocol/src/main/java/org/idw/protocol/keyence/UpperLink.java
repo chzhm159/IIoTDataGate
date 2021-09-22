@@ -196,7 +196,8 @@ public class UpperLink extends AbstractProtocol {
         opt.put("registerIndex","100");
         opt.put("unit","uint16");
         opt.put("count",2);
-        up.getReadCommand(opt);
+        ArrayList<Byte> cmds = up.getReadCommand(opt);
+        log.debug(cmds.toString());
     }
     private void initValidDataMemory(String cpu){
         // TODO 根据型号,初始化对应的可读写区域.但是目前先不处理

@@ -1,13 +1,12 @@
 plugins {
+    id 'application'
     id 'org.springframework.boot' version '2.4.4'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id 'java'
 }
 
 group 'org.idw.web'
-version '1.0-SNAPSHOT'
+version '0.0.1'
 
-sourceCompatibility = 1.8
 archivesBaseName = 'web'
 
 
