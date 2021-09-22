@@ -4,15 +4,12 @@ plugins {
 }
 
 group 'org.idw.core'
-version '1.0-SNAPSHOT'
+version '0.0.1'
 archivesBaseName = 'core'
 
 application{
     mainClassName('org.idw.core.server.App')
 }
-
-
-
 
 dependencies {
     // implementation projects.protocol

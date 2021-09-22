@@ -1,19 +1,13 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'java'
     id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 group 'org.idw.common'
 version '0.0.1'
 archivesBaseName = 'common'
-configurations {
-    instrumentedJars {
-        canBeConsumed = true
-        canBeResolved = false
-        // If you want this configuration to share the same dependencies, otherwise omit this line
-        extendsFrom implementation, runtimeOnly
-    }
-}
+
 dependencies {
     api(libs.junit4)
     api(libs.bundles.logs)

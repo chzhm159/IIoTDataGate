@@ -1,6 +1,8 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'java'
+    id 'application'
     id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 group 'org.idw.protocol'
 version '0.0.1'
@@ -10,3 +12,8 @@ archivesBaseName = 'protocol'
 dependencies {
     api project(':common')
 }
+application{
+    // 仅是为了测试
+    mainClassName('org.idw.protocol.keyence.UpperLink')
+}
+
