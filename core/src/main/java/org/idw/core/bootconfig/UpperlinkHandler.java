@@ -1,7 +1,6 @@
 package org.idw.core.bootconfig;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import org.apache.commons.lang3.ArrayUtils;
@@ -64,15 +63,15 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         int count = data.getCount();
         opt.put("count",count);
         opt.put("data",data.getData().toString());
-        ArrayList<Byte> cmd = upperLinkProtocol.getWriteCommand(opt);
+        ByteBuf cmd = upperLinkProtocol.write(opt);
         if(cmd==null){
             log.error("变量[{}]写入失败 ",tag.getKey());
             return ;
         }
-        Byte[] list2 = new Byte[cmd.size()];
+        /*Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
-        ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);
-        ByteBuf recData = sendSync(tag.getKey(),cmdByteBuf);
+        ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);*/
+        ByteBuf recData = sendSync(tag.getKey(),cmd);
         if(recData!=null){
             tag.onValue(recData);
         }
@@ -184,11 +183,11 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         opt.put("registerIndex",tag.getRegisterIndex());
         opt.put("unit","uint16");
         opt.put("count",tag.getCount());
-        ArrayList<Byte> cmd = upperLinkProtocol.getReadCommand(opt);
-        Byte[] list2 = new Byte[cmd.size()];
+        ByteBuf cmd = upperLinkProtocol.read(opt);
+        /*Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
-        ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);
-        tag.setReadCmd(cmdByteBuf);
+        ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);*/
+        tag.setReadCmd(cmd);
     }
 
     @Override

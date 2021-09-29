@@ -16,10 +16,14 @@
 
 package org.idw.protocol.modbus;
 
+import io.netty.buffer.ByteBuf;
+import org.apache.commons.lang3.StringUtils;
+import org.idw.protocol.modbus.requests.*;
+
+import java.util.HashMap;
 import java.util.Optional;
 
 public enum FunctionCode {
-
     ReadCoils(0x01),
     ReadDiscreteInputs(0x02),
     ReadHoldingRegisters(0x03),
@@ -79,5 +83,6 @@ public enum FunctionCode {
     public static boolean isExceptionCode(int code) {
         return fromCode(code - 0x80).isPresent();
     }
+
 
 }

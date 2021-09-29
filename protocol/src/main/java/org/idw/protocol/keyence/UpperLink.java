@@ -1,5 +1,6 @@
 package org.idw.protocol.keyence;
-import org.apache.commons.lang3.ArrayUtils;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 
 import org.idw.common.stringres.MessageResources;
 import org.idw.protocol.AbstractProtocol;
@@ -9,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class UpperLink extends AbstractProtocol {
@@ -30,7 +28,7 @@ public class UpperLink extends AbstractProtocol {
         initDataType();
     }
     @Override
-    public ArrayList<Byte> getReadCommand(HashMap<String, Object> args) {
+    public ByteBuf read(HashMap<String, Object> args) {
         Object registerTypeObj = args.get("registerType");
         Object registerIndexObj = args.get("registerIndex");
         Object unitObj = args.get("unit");
@@ -92,15 +90,20 @@ public class UpperLink extends AbstractProtocol {
         stringBuilder.append("\r");
         String cmd = stringBuilder.toString();
         log.debug("read command string: {}",cmd);
-        // Hex hex = new Hex(Charset.forName("US-ASCII"));
+        ByteBuf cmdBuf = Unpooled.buffer();
         byte[] bytelist = cmd.getBytes(Charset.forName("US-ASCII"));
-        Byte[] cmdBytes = ArrayUtils.toObject(bytelist);
-        ArrayList<Byte> cmdByteList = Stream.of(cmdBytes).collect(Collectors.toCollection(ArrayList<Byte>::new));
-        return cmdByteList;
+        cmdBuf.writeBytes(bytelist,0,bytelist.length);
+        return cmdBuf;
+
+        // Hex hex = new Hex(Charset.forName("US-ASCII"));
+
+        //Byte[] cmdBytes = ArrayUtils.toObject(bytelist);
+        // ArrayList<Byte> cmdByteList = Stream.of(cmdBytes).collect(Collectors.toCollection(ArrayList<Byte>::new));
+        //return cmdByteList;
     }
 
     @Override
-    public ArrayList<Byte> getWriteCommand(HashMap<String, Object> args) {
+    public ByteBuf write(HashMap<String, Object> args) {
         Object registerTypeObj = args.get("registerType");
         Object registerIndexObj = args.get("registerIndex");
         Object unitObj = args.get("unit");
@@ -184,9 +187,15 @@ public class UpperLink extends AbstractProtocol {
         String cmd = stringBuilder.toString();
         log.debug("write command string: {}",cmd);
         byte[] bytelist = cmd.getBytes(Charset.forName("US-ASCII"));
+        ByteBuf cmdBuf = Unpooled.buffer();
+        cmdBuf.writeBytes(bytelist,0,bytelist.length);
+        return cmdBuf;
+        /*
+        byte[] bytelist = cmd.getBytes(Charset.forName("US-ASCII"));
         Byte[] cmdBytes = ArrayUtils.toObject(bytelist);
         ArrayList<Byte> cmdByteList = Stream.of(cmdBytes).collect(Collectors.toCollection(ArrayList<Byte>::new));
         return cmdByteList;
+        */
     }
 
     public  static void main(String[] args){
@@ -197,7 +206,7 @@ public class UpperLink extends AbstractProtocol {
         opt.put("registerIndex","100");
         opt.put("unit","uint16");
         opt.put("count",2);
-        ArrayList<Byte> cmds = up.getReadCommand(opt);
+        ByteBuf cmds = up.read(opt);
         log.debug(cmds.toString());
         log.debug(MessageResources.getMessage("user-label","未能获取到"));
 

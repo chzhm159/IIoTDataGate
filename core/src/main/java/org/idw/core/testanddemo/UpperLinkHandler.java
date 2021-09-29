@@ -1,7 +1,6 @@
 package org.idw.core.testanddemo;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -15,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 public class UpperLinkHandler extends ChannelInboundHandlerAdapter {
@@ -30,7 +28,7 @@ public class UpperLinkHandler extends ChannelInboundHandlerAdapter {
         opt.put("registerIndex","100");
         opt.put("unit","uint16");
         opt.put("count",2);
-        ArrayList<Byte> cmd = up.getReadCommand(opt);
+        ArrayList<Byte> cmd = up.read(opt);
         Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
         ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
@@ -64,7 +62,7 @@ public class UpperLinkHandler extends ChannelInboundHandlerAdapter {
             num++;
             opt.put("v_1",num);
             opt.put("v_2",num);
-            ArrayList<Byte> cmd = up.getWriteCommand(opt);
+            ArrayList<Byte> cmd = up.write(opt);
             Byte[] list2 = new Byte[cmd.size()];
             byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
            // byte[] bytes = ArrayUtils.toPrimitive(cmdBytes);
