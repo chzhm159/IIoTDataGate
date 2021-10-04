@@ -18,16 +18,16 @@ package org.idw.protocol.modbus;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.DecoderException;
+
 import org.idw.common.stringres.MessageResources;
-import org.idw.protocol.AbstractProtocol;
+import org.idw.protocol.Protocol;
 import org.idw.protocol.modbus.requests.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 
 
-public class ModbusMasterTCP extends AbstractProtocol {
+public class ModbusMasterTCP extends Protocol {
     private static final Logger log = LoggerFactory.getLogger(ModbusMasterTCP.class);
     private ModbusTcpCodec modbusTcpCodec;
     public ModbusMasterTCP(){
@@ -35,9 +35,46 @@ public class ModbusMasterTCP extends AbstractProtocol {
         ModbusRequestDecoder decoder= new ModbusRequestDecoder();
         modbusTcpCodec = new ModbusTcpCodec(encoder,decoder);
     }
-    @Override
-    public ByteBuf read(HashMap<String, Object> args) {
 
+    @Override
+    public ByteBuf encode(Object args) {
+        HashMap<String, Object> pack =  (HashMap<String, Object>)args;
+        if(pack.containsKey("opt")){
+            String opt = pack.get("opt").toString();
+            if(opt.equalsIgnoreCase("read")){
+                // 明确的读取操作
+                return read(pack);
+            }else if(opt.equalsIgnoreCase("write")){
+                // 明确的写入操作
+                return write(pack);
+            }else if(opt.equalsIgnoreCase("read_write")){
+                if(pack.containsKey("data")&&pack.get("data")!=null){
+                    // 读写模式下,如果包含 data且data不为空,则执行写入操作
+                    return write(pack);
+                }else{
+                    // 读写模式下,如果没有data则认为是读取操作
+                    return read(pack);
+                }
+            }else{
+                String errMsg = MessageResources.getMessage("error.opt.error","读写类型不支持,仅支持 [read | write | read_write]");
+                log.error("{}:[{}]",errMsg,opt);
+                return null;
+            }
+        }else {
+            String errMsg = MessageResources.getMessage("error.opt.null","未指定读写类型,无法构造指令");
+            log.error(errMsg);
+            return null;
+        }
+    }
+
+    @Override
+    public Object decode(ByteBuf values) {
+        return values;
+    }
+    public ByteBuf write(HashMap<String, Object> args) {
+        return null;
+    }
+    public ByteBuf read(HashMap<String, Object> args) {
         int count = getReadCount(args);
         int idx = getReadIndex(args);
         short tid = getTransactionId(args);
@@ -56,7 +93,23 @@ public class ModbusMasterTCP extends AbstractProtocol {
         log.debug("测试命令构造: {}",dump);
         return buffer;
     }
-
+    private int getIntValue(HashMap<String, Object> args ,String key){
+        int v = -1;
+        if(args==null||args.isEmpty()){
+            return v;
+        }
+        if(!args.containsKey(key)){
+            return v;
+        }
+        Object obj = args.get(key);
+        try{
+            v = Integer.parseInt(obj.toString());
+        }catch (Exception e){
+            String idxErr = MessageResources.getMessage("error.read.invalid.ivalue","无效参数,必须为Int类型");
+            log.error("{}:[{}]",idxErr,key);
+        }
+        return v ;
+    }
     private ModbusRequest getReadPDU(HashMap<String, Object> args,int index,int count){
         // 可访问的4个区域 线圈状态(Coils),离散输入(DiscreteInput),保持寄存器(HoldingRegisters),输入寄存器(InputRegister)
         ModbusRequest pdu = null;
@@ -141,10 +194,8 @@ public class ModbusMasterTCP extends AbstractProtocol {
         }
         return uid;
     }
-    @Override
-    public ByteBuf write(HashMap<String, Object> args) {
-        return null;
-    }
+
+
     public ModbusRequest forRead(String funCode,int addr,int quantity) throws Exception {
         switch(funCode) {
             case "readcoils" : return decodeReadCoils(addr,quantity);
@@ -236,4 +287,6 @@ public class ModbusMasterTCP extends AbstractProtocol {
                                                                                ByteBuf values) {
         return new ReadWriteMultipleRegistersRequest(readAddress, readQuantity, writeAddress, writeQuantity, values);
     }
+
+
 }

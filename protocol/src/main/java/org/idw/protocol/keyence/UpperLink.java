@@ -3,7 +3,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import org.idw.common.stringres.MessageResources;
-import org.idw.protocol.AbstractProtocol;
+import org.idw.protocol.Protocol;
 import org.idw.protocol.DataTypeNames;
 import org.idw.protocol.ProtocolNames;
 import org.slf4j.Logger;
@@ -13,21 +13,55 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 
 
-public class UpperLink extends AbstractProtocol {
+public class UpperLink extends Protocol {
     private static final Logger log = LoggerFactory.getLogger(UpperLink.class);
-    //
     private HashMap<String,Integer> registerType_MaxRange = new HashMap<String,Integer>();
     private HashMap<String,String> dataTypes = new HashMap<String,String>();
 
-
     public UpperLink(String cpuModel){
-
         this.cpuModel = cpuModel;
         this.protocol= ProtocolNames.UpperLink;
         initValidDataMemory(cpuModel);
         initDataType();
     }
+
     @Override
+    public ByteBuf encode(Object args) {
+        HashMap<String, Object> arg = (HashMap<String, Object>)args;
+        if(arg.containsKey("opt")){
+            String opt = arg.get("opt").toString();
+            if(opt.equalsIgnoreCase("read")){
+                // 明确的读取操作
+                return read(arg);
+            }else if(opt.equalsIgnoreCase("write")){
+                // 明确的写入操作
+                return write(arg);
+            }else if(opt.equalsIgnoreCase("read_write")){
+                if(arg.containsKey("data")&&arg.get("data")!=null){
+                    // 读写模式下,如果包含 data且data不为空,则执行写入操作
+                    return write(arg);
+                }else{
+                    // 读写模式下,如果没有data则认为是读取操作
+                    return read(arg);
+                }
+            }else{
+                String errMsg = MessageResources.getMessage("error.opt.error","读写类型不支持,仅支持 [read | write | read_write]");
+                log.error("{}:[{}]",errMsg,opt);
+                return null;
+            }
+        }else {
+            String errMsg = MessageResources.getMessage("error.opt.null","未指定读写类型,无法构造指令");
+            log.error(errMsg);
+            return null;
+        }
+    }
+
+    @Override
+    public Object decode(ByteBuf values) {
+        // return write(values);
+        return values;
+    }
+
     public ByteBuf read(HashMap<String, Object> args) {
         Object registerTypeObj = args.get("registerType");
         Object registerIndexObj = args.get("registerIndex");
@@ -102,7 +136,6 @@ public class UpperLink extends AbstractProtocol {
         //return cmdByteList;
     }
 
-    @Override
     public ByteBuf write(HashMap<String, Object> args) {
         Object registerTypeObj = args.get("registerType");
         Object registerIndexObj = args.get("registerIndex");
@@ -263,5 +296,7 @@ public class UpperLink extends AbstractProtocol {
         dataTypes.put(DataTypeNames.int32,".L");
         dataTypes.put(DataTypeNames.hex,".H");
     }
+
+
 }
 

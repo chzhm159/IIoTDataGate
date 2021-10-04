@@ -28,11 +28,11 @@ public class UpperLinkHandler extends ChannelInboundHandlerAdapter {
         opt.put("registerIndex","100");
         opt.put("unit","uint16");
         opt.put("count",2);
-        ArrayList<Byte> cmd = up.read(opt);
-        Byte[] list2 = new Byte[cmd.size()];
-        byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
-        ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
-        final ChannelFuture f = ctx.writeAndFlush(out); // (3)
+        ByteBuf cmd = up.encode(opt);
+//        Byte[] list2 = new Byte[cmd.size()];
+//        byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
+//        ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
+        final ChannelFuture f = ctx.writeAndFlush(cmd); // (3)
         f.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) {
@@ -54,20 +54,20 @@ public class UpperLinkHandler extends ChannelInboundHandlerAdapter {
             log.info("收到消息 hex dump: {}", ByteBufUtil.hexDump(m));
             Thread.sleep(1000);
             UpperLink up = new UpperLink("kv-5000");
-            HashMap<String,Object> opt = new HashMap<String,Object>();
-            opt.put("registerType","DM");
-            opt.put("registerIndex","100");
-            opt.put("unit","uint16");
-            opt.put("count",2);
-            num++;
-            opt.put("v_1",num);
-            opt.put("v_2",num);
-            ArrayList<Byte> cmd = up.write(opt);
-            Byte[] list2 = new Byte[cmd.size()];
-            byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
+//            HashMap<String,Object> opt = new HashMap<String,Object>();
+//            opt.put("registerType","DM");
+//            opt.put("registerIndex","100");
+//            opt.put("unit","uint16");
+//            opt.put("count",2);
+//            num++;
+//            opt.put("v_1",num);
+//            opt.put("v_2",num);
+            Object cmd = up.decode(m);
+//            Byte[] list2 = new Byte[cmd.size()];
+//            byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
            // byte[] bytes = ArrayUtils.toPrimitive(cmdBytes);
             // ByteBuf out = ctx.alloc().directBuffer(93);
-            ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
+//            ByteBuf out = Unpooled.wrappedBuffer(cmdbyte);
 //            out.writeShort(0);//Transaction ID  2
 //            out.writeShort(0);//protocal id     2
 //            out.writeShort(0);//msg len         2

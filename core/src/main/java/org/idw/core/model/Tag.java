@@ -46,13 +46,16 @@ public class Tag {
     private String operate;
     // 读取指令
     private ByteBuf readCmd;
-
     // 写入指令
     private ByteBuf writeCmd;
+
+    // 返回结果的处理方式: raw(默认方式,直接接受 ByteBuf 自行处理),后续会根据数据类型和数量,自动解析好后返回
+    private String dataStrategy="raw";
 
     public void setEventBus(AsyncEventBus eb){
         this.eventBus = eb;
     }
+
     public String getTagName() {
         return tagName;
     }
@@ -189,6 +192,14 @@ public class Tag {
 
     public void setOperate(String operate) {
         this.operate = operate;
+    }
+
+    public String getDataStrategy() {
+        return dataStrategy;
+    }
+
+    public void setDataStrategy(String dataStrategy) {
+        this.dataStrategy = dataStrategy;
     }
 
     public void onValue(Object msg){

@@ -39,7 +39,7 @@ public class MasterExample {
         args.put("transactionId","5");
         args.put("unitId","126");
         args.put("unit","unint16");
-        mmtcp.read(args);
+        mmtcp.encode(args);
     }
     public MasterExample(){
 

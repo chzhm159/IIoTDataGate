@@ -62,8 +62,9 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         opt.put("unit",tag.getUnit());
         int count = data.getCount();
         opt.put("count",count);
+        opt.put("opt","write");
         opt.put("data",data.getData().toString());
-        ByteBuf cmd = upperLinkProtocol.write(opt);
+        ByteBuf cmd = upperLinkProtocol.encode(opt);
         if(cmd==null){
             log.error("变量[{}]写入失败 ",tag.getKey());
             return ;
@@ -73,7 +74,11 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);*/
         ByteBuf recData = sendSync(tag.getKey(),cmd);
         if(recData!=null){
-            tag.onValue(recData);
+            if(tag.getDataStrategy().equalsIgnoreCase("raw")){
+                tag.onValue(recData);
+            }
+        }else{
+            log.error("写入操作,返回空数据");
         }
     }
 
@@ -89,7 +94,11 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         ByteBuf readCmd = tag.getReadCmd();
         ByteBuf recData = sendSync(tag.getKey(),readCmd);
         if(recData!=null){
-            tag.onValue(recData);
+            if(tag.getDataStrategy().equalsIgnoreCase("raw")){
+                tag.onValue(recData);
+            }
+        }else{
+            log.error("读取操作,返回空数据");
         }
     }
     private ByteBuf sendSync(String tagKey,ByteBuf data){
@@ -182,8 +191,9 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         opt.put("registerType",tag.getRegisterType());
         opt.put("registerIndex",tag.getRegisterIndex());
         opt.put("unit","uint16");
+        opt.put("opt","read");
         opt.put("count",tag.getCount());
-        ByteBuf cmd = upperLinkProtocol.read(opt);
+        ByteBuf cmd = upperLinkProtocol.encode(opt);
         /*Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));
         ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);*/
