@@ -91,6 +91,10 @@ public class App {
         String devModel = devDef.getDeviceModel();
         dev.setDeviceModel(devModel);
 
+        // 设备编号
+        String devCode = devDef.getDeviceCode();
+        dev.setDeviceCode(devCode);
+
         // 链接超时设置
         int devCT = devDef.getConnectTimeout();
         dev.setConnectTimeout(devCT);
@@ -103,6 +107,7 @@ public class App {
         ArrayList<TagDefineModel> tagList = devDef.getTags();
         tagList.forEach(tagDef -> {
             Tag tag = tagDefineConvert2Tag(tagDef);
+            tag.setDevice(dev);
             dev.addTag(tag);
         });
         return dev;

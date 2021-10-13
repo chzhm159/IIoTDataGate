@@ -21,6 +21,16 @@ public class DeviceDefineModel {
     private int connectTimeout;
     // 重试时间间隔,单位 毫秒
     private int retryInterval;
+    // 设备单元号
+    private String deviceCode;
+
+    public String getDeviceCode() {
+        return deviceCode;
+    }
+
+    public void setDeviceCode(String deviceCode) {
+        this.deviceCode = deviceCode;
+    }
     //
     private ArrayList<TagDefineModel> tags = new ArrayList<TagDefineModel>();
 

@@ -2,6 +2,8 @@ package org.idw.core.bootconfig;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
+import org.idw.core.bootconfig.modbus.ModbusTCPAssembler;
+import org.idw.core.bootconfig.upperlink.UpperLinkAssembler;
 import org.idw.core.model.Device;
 import org.idw.core.model.DeviceManager;
 import org.slf4j.Logger;
@@ -17,7 +19,8 @@ public class ChannelInitializerDispatch extends ChannelInitializer {
         this.deviceManager = dm;
         // TODO 这里未来计划通过注解的方式标注在对应的文件上,而不是这样写死,但目前先跑通功能为主
         protocolHandlers.put(Device.Protocols.upperlink.getName(),new UpperLinkAssembler());
-        protocolHandlers.put(Device.Protocols.s7.getName(),new S7Assembler());
+        // protocolHandlers.put(Device.Protocols.s7.getName(),new S7Assembler());
+        protocolHandlers.put(Device.Protocols.ModbusTCP.getName(),new ModbusTCPAssembler());
     }
 
     @Override

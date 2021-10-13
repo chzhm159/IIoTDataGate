@@ -1,0 +1,47 @@
+﻿{
+  "devices": [
+    {
+      "deviceID": "L1_D1",
+      "deviceName": "1号桌面",
+      "deviceModel": "kv-5000",
+      "deviceCode": "1",
+      "protocolType": "modbustcp",
+      "host": "127.0.0.1",
+      "port": 502,
+      "connectTimeout": 3000,
+      "retryInterval": 3000,
+      "tags": [
+        {
+          "tagName": "3个产量",
+          "key": "L1_D1_output",
+          "registerType": "readholdingregisters",
+          "registerIndex": 0,
+          "offset":0,
+          "unit": "uint16",
+          "count": 1,
+          "readInterval": 1000,
+          "readTimeout": 60000,
+          "readTimes": 10,
+          "operate": "r",
+          "loopRead": true,
+          "valueHandler": "custom.service.ModBusTCPDataReceiver#onInValue"
+        },
+        {
+          "tagName": "2个不良",
+          "key": "L1_D1_bad",
+          "registerType": "readholdingregisters",
+          "registerIndex": 2,
+          "offset":0,
+          "unit": "uint16",
+          "count": 2,
+          "readInterval": 3000,
+          "readTimeout": 60000,
+          "readTimes": 10,
+          "operate": "r",
+          "loopRead": true,
+          "valueHandler": "custom.service.ModBusTCPDataReceiver#onInValue"
+        }
+      ]
+    }
+  ]
+}

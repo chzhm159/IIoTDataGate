@@ -12,12 +12,16 @@ import java.util.concurrent.TimeUnit;
 
 public class Tag {
     private static final Logger log = LoggerFactory.getLogger(Tag.class);
+    private Device device;
     // 变量名称,方便使用者记忆
     private String tagName;
     // 变量的key,使用 : 分割,可以定义任意层级,但必须全局唯一 root:level1:name
     private String key;
     // 当前变量对应的寄存器区域名称,例如 DM,或者FM
     private String registerType;
+    // 会话id
+    private String transactionId;
+
     // 寄存区编号
     private int registerIndex;
     // 相对寄存区编号的偏移量
@@ -51,6 +55,14 @@ public class Tag {
 
     // 返回结果的处理方式: raw(默认方式,直接接受 ByteBuf 自行处理),后续会根据数据类型和数量,自动解析好后返回
     private String dataStrategy="raw";
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
 
     public void setEventBus(AsyncEventBus eb){
         this.eventBus = eb;
@@ -201,6 +213,16 @@ public class Tag {
     public void setDataStrategy(String dataStrategy) {
         this.dataStrategy = dataStrategy;
     }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+
 
     public void onValue(Object msg){
         // StopWatch stopWatch = new StopWatch();

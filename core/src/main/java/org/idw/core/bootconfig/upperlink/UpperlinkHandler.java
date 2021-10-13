@@ -1,10 +1,11 @@
-package org.idw.core.bootconfig;
+package org.idw.core.bootconfig.upperlink;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.idw.core.bootconfig.FakeReadJob;
+import org.idw.core.bootconfig.OnTagWriteListener;
+import org.idw.core.bootconfig.TimeScheduler;
 import org.idw.core.model.Device;
 import org.idw.core.model.Tag;
 import org.idw.core.model.TagData4Write;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,7 +31,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
  * 4. 链接状态的维护,断线重连等等
  * 5. 如何处理 write 操作?
  */
-public class UpperlinkHandler extends ChannelDuplexHandler implements JobListener, OnTagWriteListener{
+public class UpperlinkHandler extends ChannelDuplexHandler implements JobListener, OnTagWriteListener {
 
     private static final Logger log = LoggerFactory.getLogger(UpperlinkHandler.class);
 
@@ -190,7 +190,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         HashMap<String,Object> opt = new HashMap<String,Object>();
         opt.put("registerType",tag.getRegisterType());
         opt.put("registerIndex",tag.getRegisterIndex());
-        opt.put("unit","uint16");
+        opt.put("unit",tag.getUnit());
         opt.put("opt","read");
         opt.put("count",tag.getCount());
         ByteBuf cmd = upperLinkProtocol.encode(opt);

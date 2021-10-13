@@ -5,6 +5,8 @@ public class TagDefineModel {
     private String tagName;
     // 变量的key,使用 : 分割,可以定义任意层级,但必须全局唯一 root:level1:name
     private String key;
+    // 会话id
+    private String transactionId;
     // 当前变量对应的寄存器区域名称,例如 DM,或者FM
     private String registerType;
     // 寄存区编号
@@ -29,6 +31,13 @@ public class TagDefineModel {
     // 操作 r:只读,w:只写,rw:读写
     private String operate;
 
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
     public String getTagName() {
         return tagName;
     }

@@ -23,23 +23,23 @@ public class MbapHeader {
     public static final int PROTOCOL_ID = 0;
     public static final int LENGTH = 7;
 
-    private final short transactionId;
+    private final int transactionId;
     private final int protocolId;
     private final int length;
     private final short unitId;
 
-    public MbapHeader(short transactionId, int length, short unitId) {
+    public MbapHeader(int transactionId, int length, short unitId) {
         this(transactionId, PROTOCOL_ID, length, unitId);
     }
 
-    public MbapHeader(short transactionId, int protocolId, int length, short unitId) {
+    public MbapHeader(int transactionId, int protocolId, int length, short unitId) {
         this.transactionId = transactionId;
         this.protocolId = protocolId;
         this.length = length;
         this.unitId = unitId;
     }
 
-    public short getTransactionId() {
+    public int getTransactionId() {
         return transactionId;
     }
 

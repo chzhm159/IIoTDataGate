@@ -16,19 +16,22 @@
 
 package org.idw.protocol.modbus;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
 public class MasterExample {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
     public static void main(String[] args) {
         // 原测试
         // new MasterExample(100, 100).start();
         MasterExample me = new MasterExample();
         me.readTest();
-
+        me.writeTest();
     }
     public void readTest(){
         ModbusMasterTCP mmtcp = new ModbusMasterTCP();
@@ -39,6 +42,22 @@ public class MasterExample {
         args.put("transactionId","5");
         args.put("unitId","126");
         args.put("unit","unint16");
+        args.put("opt","read");
+        mmtcp.encode(args);
+    }
+    public void writeTest(){
+        ModbusMasterTCP mmtcp = new ModbusMasterTCP();
+        HashMap<String, Object> args = new HashMap<String, Object>();
+        args.put("registerType","writemultipleregisters");
+        args.put("registerIndex","12");
+        args.put("count","2");
+        args.put("transactionId","5");
+        args.put("unitId","126");
+        args.put("unit","unint16");
+        ByteBuf values = Unpooled.buffer();
+        values.writeInt(12);
+        args.put("data", values);
+        args.put("opt","write");
         mmtcp.encode(args);
     }
     public MasterExample(){

@@ -3,9 +3,7 @@ package org.idw.core.model;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelId;
-import io.netty.channel.ChannelPipeline;
 import org.idw.core.bootconfig.OnTagWriteListener;
-import org.idw.core.bootconfig.UpperlinkHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +22,8 @@ public class Device {
 
     // 设备型号,某些plc不同的型号协议包存在差别
     private String  deviceModel;
-
+    // 设备单元号
+    private String deviceCode;
     // 通讯协议编号
     private String protocolType;
     // 设备地址
@@ -77,7 +76,13 @@ public class Device {
         /**
          * 西门子PLC,S7协议
          */
-        s7("s7");
+        s7("s7"),
+
+        /**
+         * ModbusTCP 协议
+         */
+        ModbusTCP("modbustcp");
+
         private String name;
 
         private Protocols(String name) {
@@ -193,6 +198,15 @@ public class Device {
     public void setDeviceModel(String deviceModel) {
         this.deviceModel = deviceModel;
     }
+
+    public String getDeviceCode() {
+        return deviceCode;
+    }
+
+    public void setDeviceCode(String deviceCode) {
+        this.deviceCode = deviceCode;
+    }
+
     public ChannelFuture getChannelFuture()
     {
         return this.channelFutrue;

@@ -3,4 +3,4 @@ app:
   ver: 0.0.1
   tags: 'config/${tagsfile}.json'
 env:
-  tagsfile: 'tags'
+  tagsfile: 'modebustcp_tags'

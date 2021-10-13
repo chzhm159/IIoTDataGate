@@ -19,12 +19,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 
+import org.apache.commons.collections4.MapUtils;
 import org.idw.common.stringres.MessageResources;
 import org.idw.protocol.Protocol;
 import org.idw.protocol.modbus.requests.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class ModbusMasterTCP extends Protocol {
@@ -32,7 +36,7 @@ public class ModbusMasterTCP extends Protocol {
     private ModbusTcpCodec modbusTcpCodec;
     public ModbusMasterTCP(){
         ModbusRequestEncoder encoder = new ModbusRequestEncoder();
-        ModbusRequestDecoder decoder= new ModbusRequestDecoder();
+        ModbusResponseDecoder decoder= new ModbusResponseDecoder();
         modbusTcpCodec = new ModbusTcpCodec(encoder,decoder);
     }
 
@@ -69,15 +73,37 @@ public class ModbusMasterTCP extends Protocol {
 
     @Override
     public Object decode(ByteBuf values) {
-        return values;
+        return modbusTcpCodec.decode(values);
     }
+
+
     public ByteBuf write(HashMap<String, Object> args) {
-        return null;
+        if(!args.containsKey("data")){
+            String err = MessageResources.getMessage("error.write.nodata","写入数据不能为空");
+            log.error(err);
+            return null;
+        }
+        int count = MapUtils.getIntValue(args,"count",-1);
+        int idx = MapUtils.getIntValue(args,"registerIndex",-1);
+        int tid = MapUtils.getIntValue(args,"transactionId", -1);
+        short uid = MapUtils.getShortValue(args,"unitId",(short)-1);
+
+        ByteBuf values= (ByteBuf)args.get("data");
+        ModbusRequest pdu = getWritePDU(args,idx,count,values);
+        if(count==-1||idx==-1||tid==-1||uid==-1 || pdu==null){
+            return null;
+        }
+        ModbusTcpPayload modbusTcpPayload = new ModbusTcpPayload(tid,uid,pdu);
+        ByteBuf buffer = Unpooled.buffer();
+        modbusTcpCodec.encode(modbusTcpPayload,buffer);
+        String dump = ByteBufUtil.prettyHexDump(buffer);
+        log.debug("写入命令:\n {}",dump);
+        return buffer;
     }
     public ByteBuf read(HashMap<String, Object> args) {
         int count = getReadCount(args);
         int idx = getReadIndex(args);
-        short tid = getTransactionId(args);
+        int tid = getTransactionId(args);
         short uid = getUnitId(args);
         ModbusRequest pdu = getReadPDU(args,idx,count);
         if(count==-1||idx==-1||tid==-1||uid==-1 || pdu==null){
@@ -90,26 +116,10 @@ public class ModbusMasterTCP extends Protocol {
         ByteBuf buffer = Unpooled.buffer();
         modbusTcpCodec.encode(modbusTcpPayload,buffer);
         String dump = ByteBufUtil.prettyHexDump(buffer);
-        log.debug("测试命令构造: {}",dump);
+        log.debug("读取命令:\n {}",dump);
         return buffer;
     }
-    private int getIntValue(HashMap<String, Object> args ,String key){
-        int v = -1;
-        if(args==null||args.isEmpty()){
-            return v;
-        }
-        if(!args.containsKey(key)){
-            return v;
-        }
-        Object obj = args.get(key);
-        try{
-            v = Integer.parseInt(obj.toString());
-        }catch (Exception e){
-            String idxErr = MessageResources.getMessage("error.read.invalid.ivalue","无效参数,必须为Int类型");
-            log.error("{}:[{}]",idxErr,key);
-        }
-        return v ;
-    }
+
     private ModbusRequest getReadPDU(HashMap<String, Object> args,int index,int count){
         // 可访问的4个区域 线圈状态(Coils),离散输入(DiscreteInput),保持寄存器(HoldingRegisters),输入寄存器(InputRegister)
         ModbusRequest pdu = null;
@@ -123,6 +133,23 @@ public class ModbusMasterTCP extends Protocol {
             pdu = forRead(funCode,index,count);
         } catch (Exception e) {
             String err = MessageResources.getMessage("error.read.invalidfc","暂未支持的 功能码");
+            log.error(err);
+        }
+        return pdu;
+    }
+    private ModbusRequest getWritePDU(HashMap<String, Object> args,int index,int count,ByteBuf value){
+        // 可访问的4个区域 线圈状态(Coils),离散输入(DiscreteInput),保持寄存器(HoldingRegisters),输入寄存器(InputRegister)
+        ModbusRequest pdu = null;
+        if(!args.containsKey("registerType")){
+            String err = MessageResources.getMessage("error.write.nofc","必须指定 功能码");
+            log.error(err);
+            return pdu;
+        }
+        String funCode = args.get("registerType").toString().toLowerCase();
+        try {
+            pdu = forWrite(funCode,index,count,value);
+        } catch (Exception e) {
+            String err = MessageResources.getMessage("error.write.invalidfc","暂未支持的 功能码");
             log.error(err);
         }
         return pdu;
@@ -162,8 +189,8 @@ public class ModbusMasterTCP extends Protocol {
         }
         return c;
     }
-    private short getTransactionId(HashMap<String, Object> args){
-        short tid = -1;
+    private int getTransactionId(HashMap<String, Object> args){
+        int tid = -1;
         if(!args.containsKey("transactionId")){
             String notid = MessageResources.getMessage("error.read.notid","必须指定 会话Id");
             log.error(notid);
@@ -171,7 +198,7 @@ public class ModbusMasterTCP extends Protocol {
         }
         Object transactionId = args.get("transactionId");
         try{
-            tid = Short.parseShort(transactionId.toString());
+            tid = Integer.parseInt(transactionId.toString());
         }catch (Exception e){
             String err = MessageResources.getMessage("error.read.invalidtid","会话ID不能大于256");
             log.error("{}:[{}]",err,transactionId);

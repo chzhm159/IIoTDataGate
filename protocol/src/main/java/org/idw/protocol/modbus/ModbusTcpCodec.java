@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 public class ModbusTcpCodec {
+    private static final Logger log = LoggerFactory.getLogger(ModbusTcpCodec.class);
     // mbap包头长度
     private static final int HeaderLength = MbapHeader.LENGTH;
     //
@@ -58,29 +59,23 @@ public class ModbusTcpCodec {
         buffer.writerIndex(currentWriterIndex);
     }
 
-    protected void decode(ByteBuf buffer, List<Object> out) throws Exception {
+    protected Object decode(ByteBuf buffer) {
+        ModbusTcpPayload payload =null;
         int startIndex = buffer.readerIndex();
+        try {
+            MbapHeader mbapHeader = MbapHeader.decode(buffer);
+            ModbusPdu modbusPdu = decoder.decode(buffer);
 
-        while (buffer.readableBytes() >= HeaderLength &&
-            buffer.readableBytes() >= getLength(buffer, startIndex) + HeaderSize) {
-
-            try {
-                MbapHeader mbapHeader = MbapHeader.decode(buffer);
-                ModbusPdu modbusPdu = decoder.decode(buffer);
-
-                if (modbusPdu instanceof UnsupportedPdu) {
-                    // Advance past any bytes we should have read but didn't...
-                    int endIndex = startIndex + getLength(buffer, startIndex) + 6;
-                    buffer.readerIndex(endIndex);
-                }
-
-                out.add(new ModbusTcpPayload(mbapHeader.getTransactionId(), mbapHeader.getUnitId(), modbusPdu));
-            } catch (Throwable t) {
-                throw new Exception("error decoding header/pdu", t);
+            if (modbusPdu instanceof UnsupportedPdu) {
+                // Advance past any bytes we should have read but didn't...
+                int endIndex = startIndex + getLength(buffer, startIndex) + 6;
+                buffer.readerIndex(endIndex);
             }
-
-            startIndex = buffer.readerIndex();
+            payload = new ModbusTcpPayload(mbapHeader.getTransactionId(), mbapHeader.getUnitId(), modbusPdu);
+        } catch (Exception t) {
+           log.error("Modbus decode error:{},{}",t.getCause(),t.getStackTrace());
         }
+        return payload;
     }
 
     private int getLength(ByteBuf in, int startIndex) {

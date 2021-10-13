@@ -23,17 +23,20 @@ package org.idw.protocol.modbus;
 
 public class ModbusTcpPayload {
 
-    private final short transactionId;
+    private final int transactionId;
     private final short unitId;
     private final ModbusPdu modbusPdu;
 
     /**
      * 构造一个基于tcp的数据包
+     * 这里有个隐患,因为 Java 的short 是有 16位有符号整数,取值范围为   -32768 ~ 32767.
+     * 假设现在有个需求需要读取 4万个 变量.那么极端情况下,transactionID 是会出现错误的.
+     * 这里使用 Integer 来代替
      * @param transactionId
      * @param unitId
      * @param modbusPdu
      */
-    public ModbusTcpPayload(short transactionId, short unitId, ModbusPdu modbusPdu) {
+    public ModbusTcpPayload(int transactionId, short unitId, ModbusPdu modbusPdu) {
         this.transactionId = transactionId;
         this.unitId = unitId;
         this.modbusPdu = modbusPdu;
@@ -43,7 +46,7 @@ public class ModbusTcpPayload {
      * 获取事务ID
      * @return
      */
-    public short getTransactionId() {
+    public int getTransactionId() {
         return transactionId;
     }
 
