@@ -20,7 +20,7 @@ public class TagDefineModel {
     // 采集周期,单位毫秒
     private int readInterval;
     // 读取超时,单位毫秒
-    private int readTimeout;
+    private long timeout;
     // 读取到数值后的处理函数
     private String valueHandler;
     // 读取次数,此变量优先与 loopRead, 即便是 loopRead 为true,则读取到指定次数后也会停止
@@ -126,12 +126,12 @@ public class TagDefineModel {
         this.loopRead = loopRead;
     }
 
-    public int getReadTimeout() {
-        return readTimeout;
+    public long getTimeout() {
+        return timeout;
     }
 
-    public void setReadTimeout(int readTimeout) {
-        this.readTimeout = readTimeout;
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public String getOperate() {

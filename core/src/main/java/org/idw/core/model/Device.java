@@ -3,7 +3,7 @@ package org.idw.core.model;
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelId;
-import org.idw.core.bootconfig.OnTagWriteListener;
+import org.idw.core.bootconfig.WriteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
@@ -117,8 +117,8 @@ public class Device {
         if(this.channelFutrue==null) return false;
         return this.channelFutrue.channel().isActive();
     }
-    private OnTagWriteListener writeListener;
-    public void setChannelHandler(OnTagWriteListener wlistener){
+    private WriteHandler writeListener;
+    public void setChannelHandler(WriteHandler wlistener){
         this.writeListener = wlistener;
     }
 

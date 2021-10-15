@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import org.apache.commons.lang3.StringUtils;
 import org.idw.core.bootconfig.FakeReadJob;
-import org.idw.core.bootconfig.OnTagWriteListener;
+import org.idw.core.bootconfig.WriteHandler;
 import org.idw.core.bootconfig.TimeScheduler;
 import org.idw.core.model.Device;
 import org.idw.core.model.Tag;
@@ -31,7 +31,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
  * 4. 链接状态的维护,断线重连等等
  * 5. 如何处理 write 操作?
  */
-public class UpperlinkHandler extends ChannelDuplexHandler implements JobListener, OnTagWriteListener {
+public class UpperlinkHandler extends ChannelDuplexHandler implements JobListener, WriteHandler {
 
     private static final Logger log = LoggerFactory.getLogger(UpperlinkHandler.class);
 
@@ -39,8 +39,8 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
     private Device device;
     private Exchanger<Object> exchanger = new Exchanger<>();
     private AtomicBoolean sended = new AtomicBoolean(false);
-    private volatile int readTimeout = 3000;
-    private volatile int writeTimeout = 3000;
+    private volatile long readTimeout = 3000;
+    private volatile long writeTimeout = 3000;
     public UpperlinkHandler(Device dev){
         this.device = dev;
         upperLinkProtocol= new UpperLink(dev.getDeviceModel());
@@ -74,9 +74,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         ByteBuf cmdByteBuf = Unpooled.wrappedBuffer(cmdbyte);*/
         ByteBuf recData = sendSync(tag.getKey(),cmd);
         if(recData!=null){
-            if(tag.getDataStrategy().equalsIgnoreCase("raw")){
-                tag.onValue(recData);
-            }
+            tag.onValue(recData);
         }else{
             log.error("写入操作,返回空数据");
         }
@@ -90,13 +88,11 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         if(tag==null){
             return ;
         }
-        readTimeout = tag.getCmdTimeout();
+        readTimeout = tag.getTimeout();
         ByteBuf readCmd = tag.getReadCmd();
         ByteBuf recData = sendSync(tag.getKey(),readCmd);
         if(recData!=null){
-            if(tag.getDataStrategy().equalsIgnoreCase("raw")){
-                tag.onValue(recData);
-            }
+            tag.onValue(recData);
         }else{
             log.error("读取操作,返回空数据");
         }

@@ -2,13 +2,12 @@ package org.idw.core.model;
 
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.buffer.ByteBuf;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
 
 public class Tag {
     private static final Logger log = LoggerFactory.getLogger(Tag.class);
@@ -33,7 +32,7 @@ public class Tag {
     // 采集周期,单位毫秒
     private int readInterval;
     // 读取超时,单位毫秒
-    private int cmdTimeout;
+    private long timeout;
     // 读取到数值后的处理函数
     private String valueHandler;
     // 读取次数,此变量优先与 loopRead, 即便是 loopRead 为true,则读取到指定次数后也会停止
@@ -54,7 +53,22 @@ public class Tag {
     private ByteBuf writeCmd;
 
     // 返回结果的处理方式: raw(默认方式,直接接受 ByteBuf 自行处理),后续会根据数据类型和数量,自动解析好后返回
-    private String dataStrategy="raw";
+    // decode
+    // private String dataStrategy="raw";
+
+    private HashMap context = new HashMap();
+
+    /**
+     * 获取当前Tag的扩展HashMap,可以用于存储一些额外信息
+     * @return
+     */
+    public HashMap getContext() {
+        return context;
+    }
+
+    public void setContext(HashMap context) {
+        this.context = context;
+    }
 
     public Device getDevice() {
         return device;
@@ -156,12 +170,12 @@ public class Tag {
         this.loopRead = loopRead;
     }
 
-    public int getCmdTimeout() {
-        return cmdTimeout;
+    public long getTimeout() {
+        return timeout;
     }
 
-    public void setCmdTimeout(int cmdTimeout) {
-        this.cmdTimeout = cmdTimeout;
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
 
@@ -204,14 +218,6 @@ public class Tag {
 
     public void setOperate(String operate) {
         this.operate = operate;
-    }
-
-    public String getDataStrategy() {
-        return dataStrategy;
-    }
-
-    public void setDataStrategy(String dataStrategy) {
-        this.dataStrategy = dataStrategy;
     }
 
     public String getTransactionId() {

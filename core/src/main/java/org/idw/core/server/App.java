@@ -148,11 +148,14 @@ public class App {
         int RInterval = tagDef.getReadInterval();
         tag.setReadInterval(RInterval);
 
-        int RTimeout = tagDef.getReadTimeout();
-        tag.setCmdTimeout(RTimeout);
+        long RTimeout = tagDef.getTimeout();
+        tag.setTimeout(RTimeout);
 
         String operate = tagDef.getOperate();
         tag.setOperate(operate);
+
+//        String operate = tagDef.getOperate();
+//        tag.setDataStrategy(operate);
 
         String clazzDef = tagDef.getValueHandler();
         Matcher match = class_method_pattern.matcher(clazzDef);
@@ -165,7 +168,7 @@ public class App {
                     String methodName = clazzDef.substring(clazzDef.indexOf("#") + 1);
                     Class<?> handlerClazz = Class.forName(className);
                     Object inst = handlerClazz.newInstance();
-                    Method mtd = handlerClazz.getMethod(methodName, Tag.class, ByteBuf.class);
+                    Method mtd = handlerClazz.getMethod(methodName, Tag.class, Object.class);
                     tag.setInstance(inst);
                     tag.setValueHandlerMethod(mtd);
                 } catch (Exception e) {

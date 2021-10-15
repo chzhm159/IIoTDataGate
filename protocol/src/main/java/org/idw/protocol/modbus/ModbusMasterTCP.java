@@ -107,6 +107,7 @@ public class ModbusMasterTCP extends Protocol {
         short uid = getUnitId(args);
         ModbusRequest pdu = getReadPDU(args,idx,count);
         if(count==-1||idx==-1||tid==-1||uid==-1 || pdu==null){
+            log.error("read ByteBuf error!");
            return null;
         }
 
@@ -116,7 +117,7 @@ public class ModbusMasterTCP extends Protocol {
         ByteBuf buffer = Unpooled.buffer();
         modbusTcpCodec.encode(modbusTcpPayload,buffer);
         String dump = ByteBufUtil.prettyHexDump(buffer);
-        log.debug("读取命令:\n {}",dump);
+        // log.debug("读取命令:\n {}",dump);
         return buffer;
     }
 
@@ -132,8 +133,8 @@ public class ModbusMasterTCP extends Protocol {
         try {
             pdu = forRead(funCode,index,count);
         } catch (Exception e) {
-            String err = MessageResources.getMessage("error.read.invalidfc","暂未支持的 功能码");
-            log.error(err);
+            String err = MessageResources.getMessage("error.read.invalidfc","暂未支持的 功能码[{}]");
+            log.error(err,funCode);
         }
         return pdu;
     }
@@ -149,8 +150,8 @@ public class ModbusMasterTCP extends Protocol {
         try {
             pdu = forWrite(funCode,index,count,value);
         } catch (Exception e) {
-            String err = MessageResources.getMessage("error.write.invalidfc","暂未支持的 功能码");
-            log.error(err);
+            String err = MessageResources.getMessage("error.write.invalidfc","暂未支持的 功能码[{}]");
+            log.error(err,funCode);
         }
         return pdu;
     }
@@ -229,14 +230,14 @@ public class ModbusMasterTCP extends Protocol {
             case "readdiscreteinputs": return  decodeReadDiscreteInputs(addr,quantity);
             case "readholdingregisters":return decodeReadHoldingRegisters(addr,quantity);
             case "readinputregisters": return decodeReadInputRegisters(addr,quantity);
-            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,0,0,null) ;
+            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,addr,quantity,Unpooled.buffer(quantity*2).writeZero(quantity*2)) ;
             default:
                 throw new Exception("IllegalFunctionCode");
         }
     }
     public ModbusRequest forWrite(String funCode,int addr,int quantity,ByteBuf value) throws Exception {
         switch(funCode) {
-            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,0,0,null) ;
+            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,addr,quantity,Unpooled.buffer(quantity*2).writeZero(quantity*2)) ;
             case "writesinglecoil": return decodeWriteSingleCoil(addr,value);
             case "writesingleregister": return decodeWriteSingleRegister(addr,value);
             case "writemultiplecoils": return decodeWriteMultipleCoils(addr,quantity,value);

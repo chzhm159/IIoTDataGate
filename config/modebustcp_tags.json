@@ -19,8 +19,8 @@
           "offset":0,
           "unit": "uint16",
           "count": 1,
-          "readInterval": 1000,
-          "readTimeout": 60000,
+          "readInterval": 3000,
+          "timeout": 60000,
           "readTimes": 10,
           "operate": "r",
           "loopRead": true,
@@ -29,17 +29,17 @@
         {
           "tagName": "2个不良",
           "key": "L1_D1_bad",
-          "registerType": "readholdingregisters",
+          "registerType": "writemultipleregisters",
           "registerIndex": 2,
           "offset":0,
           "unit": "uint16",
           "count": 2,
-          "readInterval": 3000,
-          "readTimeout": 60000,
+          "readInterval": 1000,
+          "timeout": 60000,
           "readTimes": 10,
-          "operate": "r",
+          "operate": "rw",
           "loopRead": true,
-          "valueHandler": "custom.service.ModBusTCPDataReceiver#onInValue"
+          "valueHandler": "custom.service.ModBusTCPDataReceiver#onReadAndWrite"
         }
       ]
     }

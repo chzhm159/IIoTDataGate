@@ -57,7 +57,9 @@ public class ModbusRequestEncoder implements ModbusPduEncoder {
                 default:
                     throw new EncoderException("FunctionCode not supported: " + modbusPdu.getFunctionCode());
             }
-        } finally {
+        }catch (Exception e){
+            throw e;
+        }finally {
             ReferenceCountUtil.release(modbusPdu);
         }
     }
