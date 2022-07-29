@@ -14,7 +14,7 @@ public class ModBusTCPDataReceiver {
     private static final Logger log = LoggerFactory.getLogger(demo.class);
     public void onInValue(Tag tag, Object v){
         ByteBuf value = (ByteBuf)v;
-        // log.debug("modebus 接收到数据:\n {}",ByteBufUtil.prettyHexDump(value));
+        log.debug("modebus 接收到数据:\n {}",ByteBufUtil.prettyHexDump(value));
         Tag wTag = tag.getDevice().getTag("L1_D1_bad");
         TagData4Write data = new TagData4Write();
         data.setTagKey(wTag.getKey());
