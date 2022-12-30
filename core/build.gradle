@@ -21,7 +21,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     implementation group: 'org.yaml', name: 'snakeyaml', version: '1.28'
     // https://mvnrepository.com/artifact/org.redisson/redisson
-    implementation group: 'org.redisson', name: 'redisson', version: '3.17.5'
+    implementation group: 'org.redisson', name: 'redisson', version: '3.19.0'
 
 }
 

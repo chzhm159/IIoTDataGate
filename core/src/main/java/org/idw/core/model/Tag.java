@@ -2,6 +2,7 @@ package org.idw.core.model;
 
 import com.google.common.eventbus.AsyncEventBus;
 import io.netty.buffer.ByteBuf;
+import org.idw.core.cache.DataCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +53,12 @@ public class Tag {
     // 写入指令
     private ByteBuf writeCmd;
 
+    // 数据缓存层
+    private DataCache dCache = null ;
+
+    public Tag(){
+        dCache = DataCache.getInstance();
+    }
     // 返回结果的处理方式: raw(默认方式,直接接受 ByteBuf 自行处理),后续会根据数据类型和数量,自动解析好后返回
     // decode
     // private String dataStrategy="raw";
@@ -229,10 +236,10 @@ public class Tag {
     }
 
 
-
     public void onValue(Object msg){
         // StopWatch stopWatch = new StopWatch();
         // stopWatch.start();
+        // dCache.save(this);
         try {
             valueHandlerMethod.invoke(instance,this,msg);
         } catch (IllegalAccessException e) {

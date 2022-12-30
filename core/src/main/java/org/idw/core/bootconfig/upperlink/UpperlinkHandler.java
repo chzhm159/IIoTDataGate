@@ -2,10 +2,11 @@ package org.idw.core.bootconfig.upperlink;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.idw.core.bootconfig.FakeReadJob;
-import org.idw.core.bootconfig.WriteHandler;
 import org.idw.core.bootconfig.TimeScheduler;
+import org.idw.core.bootconfig.WriteHandler;
 import org.idw.core.model.Device;
 import org.idw.core.model.Tag;
 import org.idw.core.model.TagData4Write;
@@ -16,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
 import java.util.HashMap;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.quartz.JobBuilder.newJob;
@@ -97,6 +100,13 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
             log.error("读取操作,返回空数据");
         }
     }
+
+    /**
+     * 同步读取数据
+     * @param tagKey Tag Id
+     * @param data  读取指令
+     * @return
+     */
     private ByteBuf sendSync(String tagKey,ByteBuf data){
         // 不可并发
         synchronized (this){
@@ -118,6 +128,10 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
                 e.printStackTrace();
                 log.error("设备[{}]中变量[{}]发送指令后等待结果超时{}",this.device.getDeviceID(),e.getStackTrace());
                 return null;
+            }finally {
+                if(data!=null && ReferenceCountUtil.refCnt(data)>0){
+                    ReferenceCountUtil.release(data);
+                }
             }
         }
     }

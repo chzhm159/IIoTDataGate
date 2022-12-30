@@ -19,10 +19,15 @@ public class BootstrapManager {
     private static final Logger log = LoggerFactory.getLogger(BootstrapManager.class);
     private static BootstrapManager instance = null;
     private BootstrapManager(){}
+
+    /**
+     * 启动管理器实例.单例模式
+     * @return
+     */
     public static BootstrapManager getInstance() {
         if(instance == null){
             synchronized (DeviceManager.class) {
-                if(instance == null){//二次检查
+                if(instance == null){
                     instance = new BootstrapManager();
                 }
             }
@@ -30,6 +35,10 @@ public class BootstrapManager {
         return instance;
     }
 
+    /**
+     * 根据设备列表建立对应的链接,绑定到特定的处理对象上
+     * @param devManager
+     */
     public void setUp(DeviceManager devManager){
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();

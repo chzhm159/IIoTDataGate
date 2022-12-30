@@ -1,68 +1,71 @@
-package org.idw.core.utils;
+package org.idw.core.cache;
 
+import org.apache.commons.lang3.StringUtils;
+import org.idw.core.model.Tag;
+import org.idw.core.model.TagValue;
+import org.idw.core.utils.AppConfig;
 import org.redisson.Redisson;
+import org.redisson.api.RBucket;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-
-public class RedissonUtil {
+public class DataCacheByRedis {
+    private static final Logger log = LoggerFactory.getLogger(DataCacheByRedis.class);
+    private RedissonClient redisson;
 
     public void init(){
-        Config config = null;
         try {
-            config = Config.fromYAML(new File("config-file.yaml"));
-        } catch (IOException e) {
+            String host = (String) AppConfig.getValueFromMap("data-cache.redis.host");
+            int db = (int)AppConfig.getValueFromMap("data-cache.redis.database");
+            int port = (int)AppConfig.getValueFromMap("data-cache.redis.port");
+            String password = (String)AppConfig.getValueFromMap("data-cache.redis.password");
+            int threads = (int)AppConfig.getValueFromMap("data-cache.redis.single-model.threads");
+            int min_idle = (int)AppConfig.getValueFromMap("data-cache.redis.single-model.min-idle");
+            // int nettyThreads  = (int)AppConfig.getValueFromMap("data-cache.redis.single-model.nettyThreads ");
+            String addr = String.format("redis://%s:%d",host,port);
+            Config config = new Config();
+            // config.setTransportMode(TransportMode.NIO);
+            SingleServerConfig singleCfg = config.useSingleServer();
+            singleCfg.setAddress(addr);
+            singleCfg.setDatabase(db);
+            if(!StringUtils.isEmpty(password)){
+                singleCfg.setPassword(password);
+            }
+            singleCfg.setConnectionPoolSize(threads);
+            singleCfg.setConnectionMinimumIdleSize(min_idle);
+            redisson = Redisson.create(config);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        RedissonClient redisson = Redisson.create(config);
     }
-//    private RedisTemplate<String, Object> redisTemplate;
-//    // =============================common============================
-//
-//    /**
-//     * 指定缓存失效时间
-//     *
-//     * @param key  键
-//     * @param time 时间(秒)
-//     */
-//    public boolean expire(String key, long time) {
-//        try {
-//            if (time > 0) {
-//                redisTemplate.expire(key, time, TimeUnit.SECONDS);
-//            }
-//            return true;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-//
-//    /**
-//     * 根据key 获取过期时间
-//     *
-//     * @param key 键 不能为null
-//     * @return 时间(秒) 返回0代表为永久有效
-//     */
-//    public long getExpire(String key) {
-//        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
-//    }
-//
-//    /**
-//     * 判断key是否存在
-//     *
-//     * @param key 键
-//     * @return true 存在 false不存在
-//     */
-//    public boolean hasKey(String key) {
-//        try {
-//            return redisTemplate.hasKey(key);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
+
+    /**
+     *
+     * @return true 存在 false不存在
+     */
+    public void save(Tag tag, TagValue data) {
+        try {
+            String key = tag.getKey();
+            RBucket<Object> bucket = redisson.getBucket(key);
+            // bucket.set(data);
+            RMap<String, Object> tagValue = redisson.getMap(key);
+            tagValue.put("key",key);
+            tagValue.put("ts",System.currentTimeMillis());
+            tagValue.put("value",data.getData());
+
+            RMap<String, Object> data2 = redisson.getMap(key);
+            long tsData = (long)data2.get("ts");
+            Object valueData = data2.get("value");
+            log.debug("时间戳为: {}",tsData);
+            log.debug("数据为: {}",valueData);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 //
 //    /**
 //     * 删除缓存

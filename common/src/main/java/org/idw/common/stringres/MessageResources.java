@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 public class MessageResources {
     private static final Logger log = LoggerFactory.getLogger(MessageResources.class);

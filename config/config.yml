@@ -4,3 +4,14 @@ app:
   tags: 'config/${tagsfile}.json'
 env:
   tagsfile: 'modebustcp_tags'
+data-cache:
+  type: 'redis'         # 期待未来能够实现更多的数据缓存组件,可以通过这个变量来切换,暂时先支持 SingleServer 模式
+  redis:                # 基于 redisson 实现
+    host: '127.0.0.1'
+    port: 6379
+    database: 2
+    password: ''
+    single-model:
+      threads: 4
+      min-idle: 2
+      nettyThreads: 4

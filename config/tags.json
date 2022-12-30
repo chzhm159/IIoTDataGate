@@ -1,7 +1,7 @@
 ﻿{
   "devices": [
     {
-      "deviceID": "L1_D1",
+      "deviceID": "L1:D1",
       "deviceName": "1号桌面",
       "deviceModel": "kv-5000",
       "protocolType": "upperlink",
@@ -12,7 +12,7 @@
       "tags": [
         {
           "tagName": "3个产量",
-          "key": "L1_D1_output",
+          "key": "L1:D1:output",
           "registerType": "FM",
           "registerIndex": 100,
           "offset":0,
@@ -27,7 +27,7 @@
         },
         {
           "tagName": "2个不良",
-          "key": "L1_D1_bad",
+          "key": "L1:D1:bad",
           "registerType": "FM",
           "registerIndex": 110,
           "offset":0,

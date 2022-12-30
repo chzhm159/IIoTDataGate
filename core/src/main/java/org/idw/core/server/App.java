@@ -1,7 +1,6 @@
 package org.idw.core.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -13,7 +12,8 @@ import io.netty.handler.codec.LineBasedFrameDecoder;
 import org.apache.commons.lang3.StringUtils;
 import org.idw.core.model.*;
 import org.idw.core.testanddemo.UpperLinkHandler;
-import org.idw.core.utils.*;
+import org.idw.core.utils.AppConfig;
+import org.idw.core.utils.TagsDefineFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,7 @@ public class App {
     private static final Pattern class_method_pattern = Pattern.compile(class_method_regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     public static void main(String[] args) {
+
         //AcquireTagsDefine atd = start();
         //InitDevicesList(atd);
 
@@ -38,6 +39,7 @@ public class App {
         HashMap<String, Object> cfg1 = AppConfig.getConfig();
         log.debug("配置文件内容: {}", cfg1);
         log.debug("app.run.path={}", AppConfig.getValueFromMap("app.run.path", cfg));
+        log.debug("data_cache.redis.port={}", AppConfig.getValueFromMap("data_cache.redis.port"));
         log.debug("resolveString={}", AppConfig.resolveString("config/${tagsfile}.json", null));
         log.debug("app.name={}", ((HashMap<String, Object>) cfg.get("app")).get("name"));
         AcquireTagsDefineModel definfo = start();

@@ -1,9 +1,7 @@
 package org.idw.core.utils;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
-import org.idw.core.model.ConfigModel;
 import org.idw.core.model.DeviceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,9 +12,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * 读取配置文件 (config/config.yml) 的工具类
+ */
 public class AppConfig {
     private static final Logger log = LoggerFactory.getLogger(AppConfig.class);
     private static  AppConfig instance = null;
@@ -29,13 +29,21 @@ public class AppConfig {
             //创建实例之前可能会有一些准备性的耗时工作
             // Thread.sleep(300);
             synchronized (DeviceManager.class) {
-                if(instance == null){//二次检查
+                if(instance == null){
                     instance = new AppConfig();
                 }
             }
         }
         return instance;
     }
+
+
+    /**
+     * 从 config/config.yml 文件中读取指定 key 的字符串类型值
+     * @param key
+     * @param cfgMap
+     * @return
+     */
     public static String getValueFromMap(String key,HashMap<String,Object> cfgMap){
         if(StringUtils.isEmpty(key)) return null;
         String[] ks = StringUtils.split(key,'.');
@@ -55,6 +63,37 @@ public class AppConfig {
         }
         return value;
     }
+    /**
+     * 从 config/config.yml 文件中读取 Key 对应的最终数值
+     * @param key
+     * @return
+     */
+    public static Object getValueFromMap(String key){
+        if(StringUtils.isEmpty(key)) return null;
+        String[] ks = StringUtils.split(key,'.');
+        if(ks==null || ks.length==0) return null;
+        HashMap<String,Object> nv = null;
+        Object value = null;
+        HashMap<String, Object> cfgMap = getConfig();
+        for (String kn : ks) {
+            if(nv==null) nv=cfgMap;
+            Object valueObj = nv.get(kn);
+            if (valueObj instanceof Map) {
+                nv = (HashMap<String, Object>) valueObj;
+            }else if(valueObj instanceof String){
+                value = (String)valueObj;
+                break;
+            }else if(valueObj instanceof Integer){
+                value = (Integer)valueObj;
+                break;
+            }else if(valueObj instanceof Double){
+                value = (Double)valueObj;
+                break;
+            }
+        }
+        return value;
+    }
+
     public static HashMap<String,Object> getConfig(){
         HashMap<String,Object> config = getInstance().cfg;
         AppConfig inst = getInstance();
@@ -63,7 +102,8 @@ public class AppConfig {
         }
         return inst.cfg;
     }
-    private HashMap<String,Object> load(String cfgPath){
+
+    public HashMap<String,Object> load(String cfgPath){
         Yaml yaml = new Yaml();
         try {
             File cf = new File(cfgPath);

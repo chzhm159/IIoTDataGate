@@ -25,6 +25,7 @@ public class DeviceManager {
         }
         return instance;
     }
+
     public void addDevice(Device dev){
         if(devList.containsKey(dev.getDeviceID())) {
             log.warn("已添加相同 deviceID 的配置 {}",dev.getDeviceID());
@@ -32,6 +33,7 @@ public class DeviceManager {
         }
         devList.put(dev.getDeviceID(),dev);
     }
+
     public HashMap<String,Device> getDevices(){
         return this.devList;
     }
