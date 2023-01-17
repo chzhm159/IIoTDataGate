@@ -17,6 +17,8 @@ public class TagDefineModel {
     private int count;
     // 变量数据类型
     private String unit;
+    // 写入操作的默认数据
+    private String value;
     // 采集周期,单位毫秒
     private int readInterval;
     // 读取超时,单位毫秒
@@ -92,6 +94,13 @@ public class TagDefineModel {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public int getReadInterval() {

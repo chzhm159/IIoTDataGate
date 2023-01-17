@@ -30,6 +30,10 @@ public class Tag {
     private int count;
     // 变量数据类型
     private String unit;
+
+    // 变量对应的数据
+    private TagValue tagValue;
+
     // 采集周期,单位毫秒
     private int readInterval;
     // 读取超时,单位毫秒
@@ -54,9 +58,9 @@ public class Tag {
     private ByteBuf writeCmd;
 
     // 数据缓存层
-    private DataCache dCache = null ;
+    private DataCache dCache = null;
 
-    public Tag(){
+    public Tag() {
         dCache = DataCache.getInstance();
     }
     // 返回结果的处理方式: raw(默认方式,直接接受 ByteBuf 自行处理),后续会根据数据类型和数量,自动解析好后返回
@@ -67,6 +71,7 @@ public class Tag {
 
     /**
      * 获取当前Tag的扩展HashMap,可以用于存储一些额外信息
+     *
      * @return
      */
     public HashMap getContext() {
@@ -85,7 +90,7 @@ public class Tag {
         this.device = device;
     }
 
-    public void setEventBus(AsyncEventBus eb){
+    public void setEventBus(AsyncEventBus eb) {
         this.eventBus = eb;
     }
 
@@ -143,6 +148,15 @@ public class Tag {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+
+    public TagValue getTagValue() {
+        return tagValue;
+    }
+
+    public void setTagValue(TagValue tagValue) {
+        this.tagValue = tagValue;
     }
 
     public int getReadInterval() {
@@ -236,24 +250,33 @@ public class Tag {
     }
 
 
-    public void onValue(Object msg){
+    public void onValue(Object msg) {
         // StopWatch stopWatch = new StopWatch();
         // stopWatch.start();
         // dCache.save(this);
         try {
-            valueHandlerMethod.invoke(instance,this,msg);
+            if(this.tagValue==null){
+                TagValue tv = new TagValue();
+                tv.setTagKey(this.key);
+                this.tagValue = tv;
+            }
+            this.tagValue.setData(msg);
+            valueHandlerMethod.invoke(instance, this);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
-            log.error("变量[{}]处理异常1: {}",this.getKey(),e.getStackTrace().toString());
+            log.error("变量[{}]处理异常1: {}", this.getKey(), e.getStackTrace().toString());
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-            log.error("变量[{}]处理异常2: {}",this.getKey(),e.getStackTrace().toString());
+            log.error("变量[{}]处理异常2: {}", this.getKey(), e.getStackTrace().toString());
         }
         // stopWatch.stop();
         // log.debug("变量[{}],收到数据后耗时: {} 纳秒",this.getTagName(),stopWatch.getTime(TimeUnit.NANOSECONDS) );
     }
-    public void write(TagData4Write data){
+
+    public void write(TagValue data) {
         // 委托给 Device 来完成写入操作
+        // 1. 避免读取到数据后写入另外一个变量时死锁问题
+        // 2. Tag对象不持有链接操作对象
         eventBus.post(data);
     }
 }

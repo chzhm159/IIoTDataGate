@@ -1,6 +1,8 @@
 package org.idw.core.server;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -108,7 +111,7 @@ public class App {
 
         ArrayList<TagDefineModel> tagList = devDef.getTags();
         tagList.forEach(tagDef -> {
-            Tag tag = tagDefineConvert2Tag(tagDef);
+            Tag tag = tagDefineConvert2Tag(tagDef,dev);
             tag.setDevice(dev);
             dev.addTag(tag);
         });
@@ -124,7 +127,7 @@ public class App {
      * @param tagDef
      * @return
      */
-    public static Tag tagDefineConvert2Tag(TagDefineModel tagDef) {
+    public static Tag tagDefineConvert2Tag(TagDefineModel tagDef,Device devDef) {
         Tag tag = new Tag();
         String key = tagDef.getKey();
         tag.setKey(key);
@@ -147,6 +150,8 @@ public class App {
         int count = tagDef.getCount();
         tag.setCount(count);
 
+
+
         int RInterval = tagDef.getReadInterval();
         tag.setReadInterval(RInterval);
 
@@ -158,6 +163,11 @@ public class App {
 
 //        String operate = tagDef.getOperate();
 //        tag.setDataStrategy(operate);
+// 将字符串表示的数据转换为实际类型
+
+        String defData = tagDef.getValue();
+        TagValue v = genTagValue(tag,defData);
+        tag.setTagValue(v);
 
         String clazzDef = tagDef.getValueHandler();
         Matcher match = class_method_pattern.matcher(clazzDef);
@@ -170,7 +180,7 @@ public class App {
                     String methodName = clazzDef.substring(clazzDef.indexOf("#") + 1);
                     Class<?> handlerClazz = Class.forName(className);
                     Object inst = handlerClazz.newInstance();
-                    Method mtd = handlerClazz.getMethod(methodName, Tag.class, Object.class);
+                    Method mtd = handlerClazz.getMethod(methodName, Tag.class);
                     tag.setInstance(inst);
                     tag.setValueHandlerMethod(mtd);
                 } catch (Exception e) {
@@ -214,5 +224,26 @@ public class App {
         } finally {
             // workerGroup.shutdownGracefully();
         }
+    }
+
+    public static TagValue genTagValue(Tag tag,String vStr){
+        if(StringUtils.isEmpty(vStr)){
+            return null;
+        }
+        String[] vlist = vStr.split(",");
+        ByteBuf databuf = Unpooled.buffer(vStr.length());
+        for (int i=0; i < vlist.length; i++){
+            String v = vlist[i];
+            if(StringUtils.isEmpty(v)){
+                continue;
+            }
+            databuf.writeBytes(v.getBytes(StandardCharsets.UTF_8));
+        }
+        CharSequence cs = databuf.readCharSequence(databuf.readableBytes(), StandardCharsets.UTF_8);
+        log.debug("{} 字符序列转字符串: {}",vStr,cs.toString());
+        TagValue tv = new TagValue();
+        tv.setTagKey(tag.getKey());
+        tv.setData(databuf);
+        return tv;
     }
 }

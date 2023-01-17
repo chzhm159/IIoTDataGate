@@ -18,7 +18,6 @@ package org.idw.protocol.modbus;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
-
 import org.apache.commons.collections4.MapUtils;
 import org.idw.common.stringres.MessageResources;
 import org.idw.protocol.Protocol;
@@ -26,9 +25,7 @@ import org.idw.protocol.modbus.requests.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class ModbusMasterTCP extends Protocol {
@@ -45,18 +42,22 @@ public class ModbusMasterTCP extends Protocol {
         HashMap<String, Object> pack =  (HashMap<String, Object>)args;
         if(pack.containsKey("opt")){
             String opt = pack.get("opt").toString();
-            if(opt.equalsIgnoreCase("read")){
+            if(opt.equalsIgnoreCase("r")){
                 // 明确的读取操作
                 return read(pack);
-            }else if(opt.equalsIgnoreCase("write")){
-                // 明确的写入操作
-                return write(pack);
-            }else if(opt.equalsIgnoreCase("read_write")){
+            }else if(opt.equalsIgnoreCase("w")){
+                if(pack.containsKey("data")&&pack.get("data")!=null){
+                    // 明确的写入操作
+                    return write(pack);
+                }else{
+                    return null;
+                }
+            }else if(opt.equalsIgnoreCase("rw")){
                 if(pack.containsKey("data")&&pack.get("data")!=null){
                     // 读写模式下,如果包含 data且data不为空,则执行写入操作
                     return write(pack);
                 }else{
-                    // 读写模式下,如果没有data则认为是读取操作
+                    // 读写模式下,如果没有data则先返回读取的指令
                     return read(pack);
                 }
             }else{
@@ -122,7 +123,7 @@ public class ModbusMasterTCP extends Protocol {
     }
 
     private ModbusRequest getReadPDU(HashMap<String, Object> args,int index,int count){
-        // 可访问的4个区域 线圈状态(Coils),离散输入(DiscreteInput),保持寄存器(HoldingRegisters),输入寄存器(InputRegister)
+        // 可访问的4中类型 线圈状态(Coils),离散输入(DiscreteInput),保持寄存器(HoldingRegisters),输入寄存器(InputRegister)
         ModbusRequest pdu = null;
         if(!args.containsKey("registerType")){
             String err = MessageResources.getMessage("error.read.nofc","必须指定 功能码");
@@ -226,25 +227,24 @@ public class ModbusMasterTCP extends Protocol {
 
     public ModbusRequest forRead(String funCode,int addr,int quantity) throws Exception {
         switch(funCode) {
-            case "readcoils" : return decodeReadCoils(addr,quantity);
-            case "readdiscreteinputs": return  decodeReadDiscreteInputs(addr,quantity);
-            case "readholdingregisters":return decodeReadHoldingRegisters(addr,quantity);
-            case "readinputregisters": return decodeReadInputRegisters(addr,quantity);
-            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,addr,quantity,Unpooled.buffer(quantity*2).writeZero(quantity*2)) ;
+            case "r_coils" : return decodeReadCoils(addr,quantity);
+            case "r_discreteinputs": return  decodeReadDiscreteInputs(addr,quantity);
+            case "r_holdingregisters":return decodeReadHoldingRegisters(addr,quantity);
+            case "r_inputregisters": return decodeReadInputRegisters(addr,quantity);
+            case "r_multipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,addr,quantity,Unpooled.buffer(quantity*2).writeZero(quantity*2)) ;
             default:
-                throw new Exception("IllegalFunctionCode");
+                throw new Exception("Unsupported Function Code For Read ");
         }
     }
     public ModbusRequest forWrite(String funCode,int addr,int quantity,ByteBuf value) throws Exception {
         switch(funCode) {
-            case "readwritemultipleregisters": return decodeReadWriteMultipleRegisters(addr,quantity,addr,quantity,Unpooled.buffer(quantity*2).writeZero(quantity*2)) ;
-            case "writesinglecoil": return decodeWriteSingleCoil(addr,value);
-            case "writesingleregister": return decodeWriteSingleRegister(addr,value);
-            case "writemultiplecoils": return decodeWriteMultipleCoils(addr,quantity,value);
-            case "writemultipleregisters": return decodeWriteMultipleRegisters(addr,quantity,value);
-            case "maskwriteregister": return decodeMaskWriteRegister(addr,quantity,value);
+            case "w_singlecoil": return decodeWriteSingleCoil(addr,value);
+            case "w_multiplecoils": return decodeWriteMultipleCoils(addr,quantity,value);
+            case "w_singleregister": return decodeWriteSingleRegister(addr,value);
+            case "w_multipleregisters": return decodeWriteMultipleRegisters(addr,quantity,value);
+            case "w_maskwriteregister": return decodeMaskWriteRegister(addr,quantity,value);
             default:
-                throw new Exception("IllegalFunctionCode");
+                throw new Exception("Unsupported Function Code For Read");
         }
     }
     /*

@@ -13,7 +13,7 @@ public class DeviceEvent {
      * @param data
      */
     @Subscribe
-    public void tagWrite(TagData4Write data){
+    public void tagWrite(TagValue data){
         device.write(data);
     }
 }

@@ -39,6 +39,22 @@
           "operate": "r",
           "loopRead": true,
           "valueHandler": "custom.service.demo#onBad"
+        },
+        {
+          "tagName": "交互信号",
+          "key": "L1:D1:state",
+          "registerType": "FM",
+          "registerIndex": 115,
+          "offset":0,
+          "unit": "uint16",
+          "count": 2,
+          "value": "123,456",
+          "readInterval": 10,
+          "timeout": 60000,
+          "readTimes": 10,
+          "operate": "w",
+          "loopRead": false,
+          "valueHandler": "custom.service.demo#onBad"
         }
       ]
     }
