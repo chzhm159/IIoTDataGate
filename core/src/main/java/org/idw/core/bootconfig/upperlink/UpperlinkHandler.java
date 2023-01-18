@@ -3,13 +3,12 @@ package org.idw.core.bootconfig.upperlink;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.idw.core.bootconfig.FakeReadJob;
 import org.idw.core.bootconfig.TimeScheduler;
 import org.idw.core.bootconfig.WriteHandler;
 import org.idw.core.model.Device;
 import org.idw.core.model.Tag;
-import org.idw.core.model.TagData4Write;
+import org.idw.core.model.TagValue;
 import org.idw.protocol.keyence.UpperLink;
 import org.quartz.*;
 import org.slf4j.Logger;
@@ -58,14 +57,14 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
     }
 
     @Override
-    public void doWrite(Tag tag, TagData4Write data){
+    public void doWrite(Tag tag, TagValue data){
         HashMap<String,Object> opt = new HashMap<String,Object>();
         opt.put("registerType",tag.getRegisterType());
         opt.put("registerIndex",tag.getRegisterIndex());
         opt.put("unit",tag.getUnit());
-        int count = data.getCount();
+        int count = tag.getCount();
         opt.put("count",count);
-        opt.put("opt","write");
+        opt.put("opt","w");
         opt.put("data",data.getData().toString());
         ByteBuf cmd = upperLinkProtocol.encode(opt);
         if(cmd==null){
@@ -162,8 +161,10 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         ConcurrentHashMap<String, Tag> tagList = this.device.getTags();
         String jobGroup = this.device.getDeviceID();
         tagList.forEach((tagKey,tag)->{
-            if(StringUtils.equalsIgnoreCase(tag.getOperate(),"rw")||StringUtils.equalsIgnoreCase(tag.getOperate(),"r")){
-                genReadCmd(tag);
+            genCmd(tag);
+            if(!tag.isLoopRead()){
+                log.debug("tag[{}],无需使用定时器",tag.getTagName());
+                return ;
             }
             try {
                 JobDataMap jdm = new JobDataMap();
@@ -196,13 +197,14 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
             log.error("设备[{}],定时器启动异常:{}",this.device.getDeviceID(),e.getStackTrace());
         }
     }
-    private void genReadCmd(Tag tag){
+    private void genCmd(Tag tag){
         HashMap<String,Object> opt = new HashMap<String,Object>();
         opt.put("registerType",tag.getRegisterType());
         opt.put("registerIndex",tag.getRegisterIndex());
         opt.put("unit",tag.getUnit());
-        opt.put("opt","read");
+        opt.put("opt",tag.getOperate());
         opt.put("count",tag.getCount());
+        opt.put("data",tag.getTagValue().getData());
         ByteBuf cmd = upperLinkProtocol.encode(opt);
         /*Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));

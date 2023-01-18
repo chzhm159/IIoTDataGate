@@ -1,33 +1,34 @@
 package org.idw.core.model;
 
+/**
+ * 点位数据对象,读取到的数据,或者需要写入的数据都用此对象来表示
+ */
 public class TagValue {
-    private String key;
-    private String name;
-    private Long ts;
+    private String tagKey;
+
+    private String valueString;
+
+    // 目前没有想好, 是 ByteBuf 类型.
     private Object data;
 
-    public String getKey() {
-        return key;
+    /**
+     * 返回此值对应的变量Key
+     * @return
+     */
+    public String getTagKey() {
+        return tagKey;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setTagKey(String tagKey) {
+        this.tagKey = tagKey;
     }
 
-    public String getName() {
-        return name;
+    public String getValueString() {
+        return valueString;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getTs() {
-        return ts;
-    }
-
-    public void setTs(Long ts) {
-        this.ts = ts;
+    public void setValueString(String valueString) {
+        this.valueString = valueString;
     }
 
     public Object getData() {

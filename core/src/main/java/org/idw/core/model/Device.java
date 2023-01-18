@@ -122,7 +122,7 @@ public class Device {
         this.writeListener = wlistener;
     }
 
-    public void write(TagData4Write data){
+    public void write(TagValue data){
         String tagKey = data.getTagKey();
         Tag tag = this.getTag(tagKey);
         if(tag==null){

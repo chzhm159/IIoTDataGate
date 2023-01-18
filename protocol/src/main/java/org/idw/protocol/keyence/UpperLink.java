@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
 
@@ -30,13 +31,18 @@ public class UpperLink extends Protocol {
         HashMap<String, Object> arg = (HashMap<String, Object>)args;
         if(arg.containsKey("opt")){
             String opt = arg.get("opt").toString();
-            if(opt.equalsIgnoreCase("read")){
+            if(opt.equalsIgnoreCase("r")){
                 // 明确的读取操作
                 return read(arg);
-            }else if(opt.equalsIgnoreCase("write")){
-                // 明确的写入操作
-                return write(arg);
-            }else if(opt.equalsIgnoreCase("read_write")){
+            }else if(opt.equalsIgnoreCase("w")){
+                if(arg.containsKey("data")&&arg.get("data")!=null){
+                    log.error("未设置data,无法构造写入命令");
+                    // 明确的写入操作
+                    return write(arg);
+                }else{
+                    return null;
+                }
+            }else if(opt.equalsIgnoreCase("rw")){
                 if(arg.containsKey("data")&&arg.get("data")!=null){
                     // 读写模式下,如果包含 data且data不为空,则执行写入操作
                     return write(arg);
@@ -187,6 +193,15 @@ public class UpperLink extends Protocol {
             }
             unit = dataTypes.get(unitObj.toString());
         }
+        Object dataObj = args.get("data");
+        String dataStr ="0";
+        if(dataObj==null){
+            log.error(MessageResources.getMessage("error.wvalue.null","未指定写入数据"));
+            return null;
+        }else{
+            ByteBuf bb = (ByteBuf)dataObj;
+            dataStr = bb.readCharSequence(bb.readableBytes(), StandardCharsets.UTF_8).toString();
+        }
 
         type=(String)registerTypeObj;
         StringBuilder stringBuilder = new StringBuilder();
@@ -197,7 +212,7 @@ public class UpperLink extends Protocol {
         stringBuilder.append(" ");
         stringBuilder.append(count);
         stringBuilder.append(" ");
-        stringBuilder.append(args.get("data").toString());
+        stringBuilder.append(dataStr);
 
         // warning 数据区域的内容,暂时要求调用者传入吧,不在这里封装了.
         /*for(int i=0;i<count;i++){

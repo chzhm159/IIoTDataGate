@@ -8,6 +8,7 @@ import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.StringCodec;
 import org.redisson.config.Config;
 import org.redisson.config.SingleServerConfig;
 import org.slf4j.Logger;
@@ -28,6 +29,8 @@ public class DataCacheByRedis {
             // int nettyThreads  = (int)AppConfig.getValueFromMap("data-cache.redis.single-model.nettyThreads ");
             String addr = String.format("redis://%s:%d",host,port);
             Config config = new Config();
+            StringCodec stringCodec = new StringCodec();
+            config.setCodec(stringCodec);
             // config.setTransportMode(TransportMode.NIO);
             SingleServerConfig singleCfg = config.useSingleServer();
             singleCfg.setAddress(addr);
@@ -52,15 +55,16 @@ public class DataCacheByRedis {
             String key = tag.getKey();
             RBucket<Object> bucket = redisson.getBucket(key);
             // bucket.set(data);
+
             RMap<String, Object> tagValue = redisson.getMap(key);
             tagValue.put("key",key);
             tagValue.put("ts",System.currentTimeMillis());
             tagValue.put("value",data.getData());
 
             RMap<String, Object> data2 = redisson.getMap(key);
-            long tsData = (long)data2.get("ts");
+            String tsData = (String)data2.get("key");
             Object valueData = data2.get("value");
-            log.debug("时间戳为: {}",tsData);
+            log.debug("key: {}",tsData);
             log.debug("数据为: {}",valueData);
         } catch (Exception e) {
             e.printStackTrace();

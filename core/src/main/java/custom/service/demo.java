@@ -1,11 +1,9 @@
 package custom.service;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.idw.core.model.Tag;
-import org.idw.core.model.TagData4Write;
-import org.idw.core.utils.IByteUtils;
+import org.idw.core.model.TagValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +19,13 @@ public class demo {
     // 用于演示 每个函数是分属不同的实例中
     private  String inistNanme="none";
 
-    public void onOutput(Tag tag,ByteBuf value){
+    public void onOutput(Tag tag){
         inistNanme = this.hashCode()+"___onOutput";
+        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
         // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
         String vStr = value.toString(Charset.forName("ascii"));
         int count = tag.getCount();
-        //log.debug("{} onOutput 变量[{}],数据接收回调已正常调用: {}={}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value),vStr);
+        // log.debug("{} onOutput 变量[{}],数据接收回调已正常调用: {}={}",inistNanme,tag.getKey(),ByteBufUtil.hexDump(value),vStr);
         // 上位链路协议中,如果返回错误数据,是已 E 开头的
         boolean err = StringUtils.startsWithIgnoreCase(vStr,"E");
         if(err){
@@ -46,15 +45,15 @@ public class demo {
             // Integer.valueOf(vv);
             log.debug("onOutput 变量[{}]={}",tag.getTagName(),v);
         }
-        TagData4Write data = new TagData4Write();
+        TagValue data = new TagValue();
         data.setTagKey(tag.getKey());
-        data.setCount(2);
         data.setData("123 456");
         // tag.write(data);
     }
 
-    public void onBad(Tag tag, ByteBuf value){
+    public void onBad(Tag tag){
         inistNanme = this.hashCode()+"___onBad";
+        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
         // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
         String vStr = value.toString(Charset.forName("ascii"));
         int count = tag.getCount();
