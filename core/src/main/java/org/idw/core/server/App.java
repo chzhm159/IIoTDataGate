@@ -1,8 +1,6 @@
 package org.idw.core.server;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -20,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -149,7 +146,6 @@ public class App {
 
         int count = tagDef.getCount();
         tag.setCount(count);
-
 
         boolean loopRead = tagDef.isLoopRead();
         tag.setLoopRead(loopRead);
