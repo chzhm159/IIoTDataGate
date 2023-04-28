@@ -65,7 +65,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         int count = tag.getCount();
         opt.put("count",count);
         opt.put("opt","w");
-        opt.put("data",data.getData().toString());
+        opt.put("data",data.getRawData().toString());
         ByteBuf cmd = upperLinkProtocol.encode(opt);
         if(cmd==null){
             log.error("变量[{}]写入失败 ",tag.getKey());
@@ -204,7 +204,7 @@ public class UpperlinkHandler extends ChannelDuplexHandler implements JobListene
         opt.put("unit",tag.getUnit());
         opt.put("opt",tag.getOperate());
         opt.put("count",tag.getCount());
-        opt.put("data",tag.getTagValue().getData());
+        opt.put("data",tag.getTagValue().getRawData());
         ByteBuf cmd = upperLinkProtocol.encode(opt);
         /*Byte[] list2 = new Byte[cmd.size()];
         byte[] cmdbyte = ArrayUtils.toPrimitive(cmd.toArray(list2));

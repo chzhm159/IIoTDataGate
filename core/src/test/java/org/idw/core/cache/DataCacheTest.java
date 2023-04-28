@@ -16,8 +16,9 @@ public class DataCacheTest {
         String name = "output";;
         tag_1.setTagName(name);
         TagValue tv_string = new TagValue();
-        tv_string.setData(123);
-        dc.save(tag_1,tv_string);
+        tv_string.setRawData(123);
+        tag_1.setTagValue(tv_string);
+        dc.save(tag_1);
 
         Tag tag_2 = new Tag();
         String key2 = "l1:d1:t2";
@@ -25,8 +26,9 @@ public class DataCacheTest {
         String name2 = "bad";;
         tag_2.setTagName(name2);
         TagValue tv_int = new TagValue();
-        tv_int.setData(20221212);
-        dc.save(tag_2,tv_int);
+        tv_int.setRawData(20221212);
+        tag_2.setTagValue(tv_int);
+        dc.save(tag_2);
 
         Tag tag_3 = new Tag();
         String key3 = "l1:d1:t3";
@@ -34,8 +36,9 @@ public class DataCacheTest {
         String name3 = "state";;
         tag_3.setTagName(name3);
         TagValue tv_double = new TagValue();
-        tv_double.setData(123.456);
-        dc.save(tag_3,tv_double);
+        tv_double.setRawData(123.456);
+        tag_3.setTagValue(tv_double);
+        dc.save(tag_3);
 
     }
 }

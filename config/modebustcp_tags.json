@@ -4,7 +4,7 @@
       "deviceID": "L1:D1",
       "deviceName": "1号桌面",
       "deviceModel": "kv-5000",
-      "deviceCode": "2",
+      "deviceCode": "1",
       "protocolType": "modbustcp",
       "host": "127.0.0.1",
       "port": 502,
@@ -18,11 +18,11 @@
           "registerIndex": 0,
           "offset":0,
           "unit": "uint16",
-          "count": 1,
-          "readInterval": 3000,
+          "count": 5,
+          "readInterval": 5000,
           "timeout": 60000,
           "readTimes": 10,
-          "operate": "r",
+          "operate": "rw",
           "loopRead": true,
           "valueHandler": "custom.service.ModBusTCPDataReceiver#onInValue"
         },
@@ -38,9 +38,9 @@
           "readInterval": 3000,
           "timeout": 60000,
           "readTimes": 10,
-          "operate": "w",
+          "operate": "rw",
           "loopRead": false,
-          "valueHandler": "custom.service.ModBusTCPDataReceiver#onInValue"
+          "valueHandler": "custom.service.ModBusTCPDataReceiver#onReadAndWrite"
         }
       ]
     }

@@ -50,16 +50,20 @@ public class DataCacheByRedis {
      *
      * @return true 存在 false不存在
      */
-    public void save(Tag tag, TagValue data) {
+    public void save(Tag tag) {
         try {
             String key = tag.getKey();
+            TagValue data = tag.getTagValue();
+            if(data==null){
+                return ;
+            }
             RBucket<Object> bucket = redisson.getBucket(key);
             // bucket.set(data);
 
             RMap<String, Object> tagValue = redisson.getMap(key);
             tagValue.put("key",key);
             tagValue.put("ts",System.currentTimeMillis());
-            tagValue.put("value",data.getData());
+            tagValue.put("value",data.getRawData());
 
             RMap<String, Object> data2 = redisson.getMap(key);
             String tsData = (String)data2.get("key");

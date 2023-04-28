@@ -253,15 +253,22 @@ public class Tag {
     public void onValue(Object msg) {
         // StopWatch stopWatch = new StopWatch();
         // stopWatch.start();
-        // dCache.save(this);
+
         try {
             if(this.tagValue==null){
                 TagValue tv = new TagValue();
                 tv.setTagKey(this.key);
                 this.tagValue = tv;
             }
-            this.tagValue.setData(msg);
-            valueHandlerMethod.invoke(instance, this);
+            // 更新数据
+            this.tagValue.setRawData(msg);
+            // 保存到缓存中
+            dCache.save(this);
+
+            // 如果回调函数不为空,执行回调,未来考虑废弃
+            if(valueHandlerMethod!=null){
+                valueHandlerMethod.invoke(instance, this);
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             log.error("变量[{}]处理异常1: {}", this.getKey(), e.getStackTrace().toString());

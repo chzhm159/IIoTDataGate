@@ -63,9 +63,9 @@ public class ModebusTCPHandler extends ChannelDuplexHandler implements JobListen
         opt.put("registerType", tag.getRegisterType());
         opt.put("registerIndex", tag.getRegisterIndex());
         opt.put("unit", tag.getUnit());
-        opt.put("opt", "write");
+        opt.put("opt", tag.getOperate());
         opt.put("count", tag.getCount());
-        opt.put("data", data.getData());
+        opt.put("data", data.getRawData());
         int tid = txid.getSID(tag.getTimeout());
         opt.put("transactionId", tid);
         tid2tkey.put(String.valueOf(tid), tag.getKey());
@@ -88,14 +88,12 @@ public class ModebusTCPHandler extends ChannelDuplexHandler implements JobListen
         }
         readTimeout = tag.getTimeout();
         ByteBuf readCmd = tag.getReadCmd();
-        int tid = readCmd.readUnsignedShort();
         readCmd.resetReaderIndex();
-        // int tid = txid.getSID(tag.getTimeout());
+        // 修改会话id
+        int tid = txid.getSID(tag.getTimeout());
+        // 缓存会话id
         tid2tkey.put(String.valueOf(tid), tag.getKey());
-        // readCmd.setShort(0,tid);
-//        String devCode = tag.getDevice().getDeviceCode();
-//        int devId = Integer.parseInt(devCode);
-//         readCmd.setShort(2,devId);
+        readCmd.setShort(0,tid);
         send(tag.getKey(), readCmd);
     }
 

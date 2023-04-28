@@ -21,7 +21,7 @@ public class demo {
 
     public void onOutput(Tag tag){
         inistNanme = this.hashCode()+"___onOutput";
-        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
+        ByteBuf value = (ByteBuf)tag.getTagValue().getRawData();
         // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
         String vStr = value.toString(Charset.forName("ascii"));
         int count = tag.getCount();
@@ -47,13 +47,13 @@ public class demo {
         }
         TagValue data = new TagValue();
         data.setTagKey(tag.getKey());
-        data.setData("123 456");
+        data.setRawData("123 456");
         // tag.write(data);
     }
 
     public void onBad(Tag tag){
         inistNanme = this.hashCode()+"___onBad";
-        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
+        ByteBuf value = (ByteBuf)tag.getTagValue().getRawData();
         // 上位链路是 ASCII 格式的协议,所以将结果直接转换为 ascii 再处理
         String vStr = value.toString(Charset.forName("ascii"));
         int count = tag.getCount();

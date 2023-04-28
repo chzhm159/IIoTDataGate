@@ -3,7 +3,6 @@ package org.idw.core.cache;
 import org.apache.commons.lang3.StringUtils;
 import org.idw.core.model.DeviceManager;
 import org.idw.core.model.Tag;
-import org.idw.core.model.TagValue;
 import org.idw.core.utils.AppConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +40,24 @@ public class DataCache {
             cache.init();
         }
     }
-    public boolean save(Tag tag, TagValue tv){
+
+    /**
+     * 保存数据到缓存池中
+     * @param tag
+     * @return
+     */
+    public boolean save(Tag tag){
         boolean suc=false;
         try{
-            cache.save(tag,tv);
+            cache.save(tag);
             suc=true;
         }catch (Exception e){
             log.error("数据保存异常: [{}] ,{}",tag.getKey(),e.getStackTrace());
-
+            suc=false;
         }
         return suc;
     }
-    public void get(){
+    public void get(String tagId){
 
     }
 }

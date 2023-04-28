@@ -12,8 +12,9 @@ import java.util.Random;
 
 public class ModBusTCPDataReceiver {
     private static final Logger log = LoggerFactory.getLogger(demo.class);
+
     public void onInValue(Tag tag){
-        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
+        ByteBuf value = (ByteBuf)tag.getTagValue().getRawData();
         log.debug("tag[{}] 接收到数据:\n {}",tag.getKey(),ByteBufUtil.prettyHexDump(value));
         Tag wTag = tag.getDevice().getTag("L1:D1:bad");
         TagValue data = new TagValue();
@@ -24,12 +25,12 @@ public class ModBusTCPDataReceiver {
         int b = r.nextInt(65526);
         databuf.writeShort(a);
         databuf.writeShort(b);
-        data.setData(databuf);
+        data.setRawData(databuf);
         wTag.write(data);
     }
 
     public void onReadAndWrite(Tag tag){
-        ByteBuf value = (ByteBuf)tag.getTagValue().getData();
+        ByteBuf value = (ByteBuf)tag.getTagValue().getRawData();
         log.debug("[{}]:接收到数据:\n {}",tag.getKey(),ByteBufUtil.prettyHexDump(value));
 //        TagData data = new TagData();
 //        data.setTagKey(tag.getKey());
