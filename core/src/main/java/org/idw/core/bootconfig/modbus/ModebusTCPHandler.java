@@ -104,7 +104,7 @@ public class ModebusTCPHandler extends ChannelDuplexHandler implements JobListen
         ByteBuf content = (ByteBuf) msg;
         int tid = -1;
         try {
-            // log.debug("receive data:\r\n {}", ByteBufUtil.prettyHexDump(content));
+            log.debug("receive data:\r\n {}", ByteBufUtil.prettyHexDump(content));
             // ModbusTcpPayload payload = (ModbusTcpPayload)modbusMasterTCP.decode(content);
             int sid = content.readUnsignedShort();
             if(sid<0){

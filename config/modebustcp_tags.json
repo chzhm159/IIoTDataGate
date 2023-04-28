@@ -4,7 +4,7 @@
       "deviceID": "L1:D1",
       "deviceName": "1号桌面",
       "deviceModel": "kv-5000",
-      "deviceCode": "2",
+      "deviceCode": "1",
       "protocolType": "modbustcp",
       "host": "127.0.0.1",
       "port": 502,
@@ -12,7 +12,7 @@
       "retryInterval": 3000,
       "tags": [
         {
-          "tagName": "3个产量",
+          "tagName": "产量区域",
           "key": "L1:D1:output",
           "registerType": "r_holdingregisters",
           "registerIndex": 0,

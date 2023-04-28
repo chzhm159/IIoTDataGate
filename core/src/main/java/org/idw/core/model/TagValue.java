@@ -6,6 +6,8 @@ package org.idw.core.model;
 public class TagValue {
     private String tagKey;
 
+    private String valueString;
+
     // 目前没有想好, 是 ByteBuf 类型.
     private Object data;
 
@@ -19,6 +21,14 @@ public class TagValue {
 
     public void setTagKey(String tagKey) {
         this.tagKey = tagKey;
+    }
+
+    public String getValueString() {
+        return valueString;
+    }
+
+    public void setValueString(String valueString) {
+        this.valueString = valueString;
     }
 
     public Object getData() {

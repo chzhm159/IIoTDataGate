@@ -151,6 +151,8 @@ public class App {
         tag.setCount(count);
 
 
+        boolean loopRead = tagDef.isLoopRead();
+        tag.setLoopRead(loopRead);
 
         int RInterval = tagDef.getReadInterval();
         tag.setReadInterval(RInterval);
@@ -230,20 +232,20 @@ public class App {
         if(StringUtils.isEmpty(vStr)){
             return null;
         }
-        String[] vlist = vStr.split(",");
-        ByteBuf databuf = Unpooled.buffer(vStr.length());
-        for (int i=0; i < vlist.length; i++){
-            String v = vlist[i];
-            if(StringUtils.isEmpty(v)){
-                continue;
-            }
-            databuf.writeBytes(v.getBytes(StandardCharsets.UTF_8));
-        }
-        CharSequence cs = databuf.readCharSequence(databuf.readableBytes(), StandardCharsets.UTF_8);
-        log.debug("{} 字符序列转字符串: {}",vStr,cs.toString());
+//        String[] vlist = vStr.split(",");
+//        ByteBuf databuf = Unpooled.buffer(vStr.length());
+//        for (int i=0; i < vlist.length; i++){
+//            String v = vlist[i];
+//            if(StringUtils.isEmpty(v)){
+//                continue;
+//            }
+//            databuf.writeBytes(v.getBytes(StandardCharsets.UTF_8));
+//        }
+//        CharSequence cs = databuf.readCharSequence(databuf.readableBytes(), StandardCharsets.UTF_8);
+//        log.debug("{} 字符序列转字符串: {}",vStr,cs.toString());
         TagValue tv = new TagValue();
         tv.setTagKey(tag.getKey());
-        tv.setData(databuf);
+        tv.setValueString(vStr);
         return tv;
     }
 }
